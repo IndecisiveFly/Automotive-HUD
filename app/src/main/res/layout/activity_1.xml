@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/LightBlue"
+    android:orientation="vertical"
+    tools:context="com.dashhud.crigerkwok.dashboardhud.Activity1">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Dashboard HUD Control"
+        android:textColor="@color/Black"
+        android:textSize="20sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp">
+
+        <Button
+            android:id="@+id/connect_google_maps"
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:text="Connect Google Maps"
+            android:textSize="12sp" />
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Status:"
+            android:textColor="@color/Black" />
+
+        <TextView
+            android:id="@+id/maps_connected_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="Connected"
+            android:textColor="@color/Black" />
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:text="Select FM Radio Station: "
+        android:textColor="@color/Black" />
+    
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp">
+
+        <ImageButton
+            android:id="@+id/FM_prev"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/back_arrow"
+            android:onClick="prev_station"/>
+
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/FM_frequency_text"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:textColor="@color/Black"
+            android:background="@color/White"
+            android:gravity="center"
+            android:text="88.1"/>
+
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="match_parent" />
+
+        <ImageButton
+            android:id="@+id/FM_next"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/forward_arrow"
+            android:onClick="next_station"/>
+
+    </LinearLayout>
+    
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="20dp" />
+
+    <SeekBar
+        android:id="@+id/FM_radio_select"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingEnd="30dp"
+        android:paddingStart="30dp"
+        android:max="99"
+        />
+
+</LinearLayout>
