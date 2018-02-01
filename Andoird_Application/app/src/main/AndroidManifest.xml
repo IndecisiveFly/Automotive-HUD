@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Device_List_Adapter">
-            
+
         </activity>
     </application>
 
