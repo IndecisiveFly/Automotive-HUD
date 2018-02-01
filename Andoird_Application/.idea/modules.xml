@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Andoird_Application.iml" filepath="$PROJECT_DIR$/Andoird_Application.iml" />
-      <module fileurl="file://C:\Users\Dustannah\Desktop\Automotive-HUD\Andoird_Application\DashboardHUD.iml" filepath="C:\Users\Dustannah\Desktop\Automotive-HUD\Andoird_Application\DashboardHUD.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
