@@ -154,7 +154,7 @@ public class Connect_BT extends AppCompatActivity {
             Log.d(TAG, "find_devices: Canceling discovery.");
 
             //check bluetooth permissions in manifest
-            checkBTpermissions();
+            //checkBTpermissions();
 
             BT_adapter.startDiscovery();
             IntentFilter discover_i = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -163,7 +163,7 @@ public class Connect_BT extends AppCompatActivity {
         if(!BT_adapter.isDiscovering())
         {
             //check bluetooth permissions in manifest
-            checkBTpermissions();
+            //checkBTpermissions();
 
             BT_adapter.startDiscovery();
             IntentFilter discover_i = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -255,7 +255,7 @@ public class Connect_BT extends AppCompatActivity {
     };
 
     //Required for API 23+ to check bluetooth permissions
-    private void checkBTpermissions()
+    /*private void checkBTpermissions()
     {
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
         {
@@ -270,5 +270,5 @@ public class Connect_BT extends AppCompatActivity {
                 Log.d(TAG, "checkBTpermissions: No need to check permissions. SDK version < LOLLIPOP.");
             }
         }
-    }
+    }*/
 }

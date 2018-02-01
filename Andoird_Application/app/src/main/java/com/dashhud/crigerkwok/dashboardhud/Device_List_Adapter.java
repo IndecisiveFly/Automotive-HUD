@@ -1,5 +1,9 @@
 package com.dashhud.crigerkwok.dashboardhud;
 
+/**
+ * Created by Dustin on 2/1/2018.
+ */
+
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
@@ -11,8 +15,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class Device_List_Adapter extends AppCompatActivity {
-
+public class Device_List_Adapter {
     private LayoutInflater li;
     private ArrayList<BluetoothDevice> devices_array;
     private int view_resource_id;
