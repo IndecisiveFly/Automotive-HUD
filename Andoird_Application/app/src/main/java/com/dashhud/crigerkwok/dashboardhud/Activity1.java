@@ -1,5 +1,7 @@
 package com.dashhud.crigerkwok.dashboardhud;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,6 +28,8 @@ public class Activity1 extends AppCompatActivity {
     String connected = "Connected";
     String not_connected = "Not Connected";
 
+    SharedPreferences pref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +45,8 @@ public class Activity1 extends AppCompatActivity {
 
         fm_select = findViewById(R.id.FM_radio_select);
 
+        pref = getSharedPreferences("status", Context.MODE_PRIVATE);
+
         update_station();
 
     }
@@ -50,12 +56,19 @@ public class Activity1 extends AppCompatActivity {
         fm_select.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar sb, int progress, boolean from_user) {
+
+                //progress = pref.getInt("current_station", 0);
+
                 Double sb_current = progress * 0.2;
-                sb_current = sb_current + (Double) 88.1;
+                sb_current = sb_current + 88.1;
                 DecimalFormat df = new DecimalFormat("#.#");
                 df.setRoundingMode(RoundingMode.CEILING);
                 String station = df.format(sb_current);
                 fm_current.setText(station);
+
+                /*SharedPreferences.Editor editor = pref.edit();
+                editor.putInt("current_station", fm_select.getProgress());
+                editor.apply();*/
             }
 
             @Override

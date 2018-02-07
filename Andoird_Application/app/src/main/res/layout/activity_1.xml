@@ -15,20 +15,24 @@
         android:textColor="@color/Black"
         android:textSize="20sp" />
 
-    <Space
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+        android:paddingEnd="30dp"
+        android:layout_gravity="center">
 
         <Button
             android:id="@+id/connect_google_maps"
             android:layout_width="120dp"
             android:layout_height="match_parent"
+            android:backgroundTint="@android:color/holo_blue_light"
             android:text="Connect Google Maps"
             android:textSize="12sp" />
 
@@ -80,8 +84,9 @@
             android:id="@+id/FM_prev"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:src="@drawable/back_arrow"
-            android:onClick="prev_station"/>
+            android:background="@android:color/transparent"
+            android:onClick="prev_station"
+            android:src="@drawable/back_arrow" />
 
         <Space
             android:layout_width="10dp"
@@ -93,8 +98,7 @@
             android:layout_height="match_parent"
             android:textColor="@color/Black"
             android:background="@color/White"
-            android:gravity="center"
-            android:text="88.1"/>
+            android:gravity="center" />
 
         <Space
             android:layout_width="10dp"
@@ -104,8 +108,9 @@
             android:id="@+id/FM_next"
             android:layout_width="50dp"
             android:layout_height="match_parent"
-            android:src="@drawable/forward_arrow"
-            android:onClick="next_station"/>
+            android:background="@android:color/transparent"
+            android:onClick="next_station"
+            android:src="@drawable/forward_arrow" />
 
     </LinearLayout>
     
@@ -117,9 +122,10 @@
         android:id="@+id/FM_radio_select"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingEnd="30dp"
-        android:paddingStart="30dp"
         android:max="99"
-        />
+        android:paddingEnd="30dp"
+        android:paddingStart="30dp" />
+
+    </LinearLayout>
 
 </LinearLayout>
