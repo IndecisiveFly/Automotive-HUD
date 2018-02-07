@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
+#include <string>
 
 #include <sys/socket.h>
 #include <bluetooth/bluetooth.h>
@@ -33,11 +34,18 @@ int main(int argc, char* argv[])
   memset(buff, 0, sizeof(buff));
 
   //read from client
-  bytes_read = read(client, buff, sizeof(buff));
-  if(bytes_read>0)
+
+  //currently read 5 messages before exiting
+  for(int i=0; i<5; i++)
   {
-    printf("recieved: %s\n", buff);
+    bytes_read = read(client, buff, sizeof(buff));
+    if(bytes_read>0)
+    {
+      printf("recieved: %s\n", buff);
+      memset(buff, 0, sizeof(buff)); //clear out buffer for next read
+    }
   }
+
 
   //close connection
   close(client);
