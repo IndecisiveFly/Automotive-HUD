@@ -9,12 +9,19 @@ android:orientation="vertical">
     android:id="@+id/device_name"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="16sp"/>
+    android:textSize="16sp"
+    android:textColor="@color/Blue"/>
 
 <TextView
     android:id="@+id/device_address"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="14sp"/>
+    android:textSize="14sp"
+    android:textColor="@color/Black"/>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/Red"/>
 
 </LinearLayout>

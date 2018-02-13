@@ -63,7 +63,6 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         BT_adapter = BluetoothAdapter.getDefaultAdapter();
 
         new_devices_list = findViewById(R.id.devices_list_view);
-        BT_devices_list = new ArrayList<>();
 
         //Broadcasts when bond state changes (pairing)
         IntentFilter filter = new IntentFilter();
@@ -120,7 +119,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             registerReceiver(broadcast_receiver, filter);
         }
 
-        SystemClock.sleep(500);
+        SystemClock.sleep(1000);
         check_bt();
     }
 
@@ -160,6 +159,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     {
         String last_used_device = pref.getString("last_BT_device_address", null);
 
+        BT_devices_list = new ArrayList<>();
+
         if(last_used_device != null)
         {
             toastText = "Checking for known paired device: " + last_used_device;
@@ -183,14 +184,14 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             Log.d(TAG, "find_devices: Canceling discovery.");
 
             //check bluetooth permissions in manifest
-            //checkBTpermissions();
+            checkBTpermissions();
 
             BT_adapter.startDiscovery();
         }
         if(!BT_adapter.isDiscovering())
         {
             //check bluetooth permissions in manifest
-            //checkBTpermissions();
+            checkBTpermissions();
 
             BT_adapter.startDiscovery();
         }
@@ -274,15 +275,20 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             if(action.equals(BluetoothDevice.ACTION_FOUND))
             {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                BT_devices_list.add(device);
+                if(device.getName() != null)
+                {
+                    BT_devices_list.add(device);
 
-                Log.d(TAG, "Found: " + device.getName() + " at " + device.getAddress());
+                    Log.d(TAG, "Found: " + device.getName() + " at " + device.getAddress());
 
-                device_list_adapter = new Device_List_Adapter(context, R.layout.activity_device__list__adapter, BT_devices_list);
-                new_devices_list.setAdapter(device_list_adapter);
+                    device_list_adapter = new Device_List_Adapter(context, R.layout.activity_device__list__adapter, BT_devices_list);
+                    new_devices_list.setAdapter(device_list_adapter);
 
-                toastText = "Discovered: " + device.getName();
-                Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+                    toastText = "Discovered: " + device.getName();
+                    Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+                }
+
+
             }
 
             //Pairing with devices
@@ -309,19 +315,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         }
     };
 
-    /*BroadcastReceiver discovery_result = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String device_name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
-            BluetoothDevice device;
-            device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            toastText = "Discovered: " + device_name;
-            Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
     //Required for API 23+ to check bluetooth permissions
-    /*private void checkBTpermissions()
+    private void checkBTpermissions()
     {
         int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
         permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COURSE_LOCATION");
@@ -333,5 +328,5 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         {
             Log.d(TAG, "checkBTpermissions: No need to check permissions. SDK version < LOLLIPOP.");
         }
-    }*/
+    }
 }
