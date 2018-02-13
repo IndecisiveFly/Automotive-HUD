@@ -10,18 +10,24 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Message;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Set;
 
-public class Connect_BT extends AppCompatActivity {
+public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = "Connect_BT";
 
@@ -33,13 +39,15 @@ public class Connect_BT extends AppCompatActivity {
 
     TextView BT_status;
 
-    public ArrayList<BluetoothDevice> BT_devices = new ArrayList<>();
+    public ArrayList<BluetoothDevice> BT_devices_list;
     public Device_List_Adapter device_list_adapter;
     ListView new_devices_list;
 
+    String bluetooth_on = "Turn Bluetooth OFF";
+    String bluetooth_off = "Turn Bluetooth ON";
 
-    String bluetooth_on = "Bluetooth is ON";
-    String bluetooth_off = "Bluetooth is OFF";
+    String toastText = "";
+    BluetoothDevice BT_device;
 
     SharedPreferences pref;
 
@@ -52,11 +60,21 @@ public class Connect_BT extends AppCompatActivity {
         BT_discoverable = findViewById(R.id.discoverable_btn);
         BT_connect = findViewById(R.id.connect_btn);
 
-        BT_status = findViewById(R.id.bluetooth_status);
-
         BT_adapter = BluetoothAdapter.getDefaultAdapter();
 
         new_devices_list = findViewById(R.id.devices_list_view);
+        BT_devices_list = new ArrayList<>();
+
+        //Broadcasts when bond state changes (pairing)
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        registerReceiver(broadcast_receiver, filter);
+
+        new_devices_list.setOnItemClickListener(Connect_BT.this);
 
         pref = getSharedPreferences("status", Context.MODE_PRIVATE);
 
@@ -67,9 +85,7 @@ public class Connect_BT extends AppCompatActivity {
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: called.");
         super.onDestroy();
-        unregisterReceiver(broadcast_receiver1);
-        unregisterReceiver(broadcast_receiver2);
-        unregisterReceiver(broadcast_receiver3);
+        unregisterReceiver(broadcast_receiver);
         BT_adapter.cancelDiscovery();
     }
 
@@ -91,24 +107,21 @@ public class Connect_BT extends AppCompatActivity {
         {
             BT_adapter.enable();
 
-            IntentFilter BTif = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(broadcast_receiver1, BTif);
-
-            BT_status.setText(bluetooth_on);
-
-            BT_connect.setVisibility(View.VISIBLE);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+            registerReceiver(broadcast_receiver, filter);
         }
         if(BT_adapter.isEnabled())
         {
             BT_adapter.disable();
 
-            IntentFilter BTif = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(broadcast_receiver1, BTif);
-
-            BT_status.setText(bluetooth_off);
-
-            BT_connect.setVisibility(View.GONE);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+            registerReceiver(broadcast_receiver, filter);
         }
+
+        SystemClock.sleep(500);
+        check_bt();
     }
 
     //initial onCreate check of Bluetooth status, sets appropriate views/strings.
@@ -120,34 +133,50 @@ public class Connect_BT extends AppCompatActivity {
         }
         if(!BT_adapter.isEnabled())
         {
-            BT_status.setText(bluetooth_off);
-            BT_connect.setVisibility(View.GONE);
+            BT_toggle.setText(bluetooth_off);
+            BT_discoverable.setEnabled(false);
+            BT_connect.setEnabled(false);
         }
         if(BT_adapter.isEnabled())
         {
-            BT_status.setText(bluetooth_on);
-            BT_connect.setVisibility(View.VISIBLE);
+            BT_toggle.setText(bluetooth_on);
+            BT_discoverable.setEnabled(true);
+            BT_connect.setEnabled(true);
         }
     }
 
-    //onClick for enabling discoverable mode for 5 minutes
+    //onClick for enabling discoverable mode for 30 seconds
     public void bluetooth_discoverable(View v)
     {
-        Log.d(TAG, "bluetooth_discoverable: Making device discoverable for 300 seconds");
+        Log.d(TAG, "bluetooth_discoverable: Making device discoverable for 30 seconds");
 
         Intent discoverable_i = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverable_i.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        discoverable_i.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30);
         startActivity(discoverable_i);
-
-        IntentFilter intentfilter = new IntentFilter(BT_adapter.ACTION_SCAN_MODE_CHANGED);
-        registerReceiver(broadcast_receiver2, intentfilter);
     }
 
     //onClick for showing a list of devices
     public void find_devices(View v)
     {
+        String last_used_device = pref.getString("last_BT_device_address", null);
+
+        if(last_used_device != null)
+        {
+            toastText = "Checking for known paired device: " + last_used_device;
+            Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+            Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
+            for(BluetoothDevice paired_device : paired_devices)
+            {
+                if(paired_device.getAddress().equals(last_used_device))
+                {
+                    toastText = "Found device: " + paired_device.getName() + "@" + last_used_device;
+                    Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+                    BT_device = paired_device;
+                }
+            }
+        }
+
         Log.d(TAG, "find_devices: Looking for unpaired devices.");
-        
         if(BT_adapter.isDiscovering())
         {
             BT_adapter.cancelDiscovery();
@@ -157,8 +186,6 @@ public class Connect_BT extends AppCompatActivity {
             //checkBTpermissions();
 
             BT_adapter.startDiscovery();
-            IntentFilter discover_i = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(broadcast_receiver3, discover_i);
         }
         if(!BT_adapter.isDiscovering())
         {
@@ -166,109 +193,145 @@ public class Connect_BT extends AppCompatActivity {
             //checkBTpermissions();
 
             BT_adapter.startDiscovery();
-            IntentFilter discover_i = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(broadcast_receiver3, discover_i);
         }
     }
 
-    //receiver for Bluetooth ON/OFF
-    private final BroadcastReceiver broadcast_receiver1 = new BroadcastReceiver() {
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+    {
+        //first cancel discovery because its very memory intensive
+        BT_adapter.cancelDiscovery();
+
+        Log.d(TAG, "onItemClick: You clicked a device.");
+
+        String device_name = BT_devices_list.get(i).getName();
+        String device_addr = BT_devices_list.get(i).getAddress();
+
+        Log.d(TAG, "onItemClick: device_name = " + device_name);
+        Log.d(TAG, "onItemClick: device_addr = " + device_addr);
+
+        //create the bond
+        Log.d(TAG, "Trying to pair with " + device_name);
+        BT_devices_list.get(i).createBond();
+    }
+
+    BroadcastReceiver broadcast_receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(BT_adapter.ACTION_STATE_CHANGED)) {
+
+            Log.d(TAG, "action = " + action);
+
+            //Bluetooth On/Off
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 // Discovery has found a device. Get the BluetoothDevice
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BT_adapter.ERROR);
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
                 switch(state)
                 {
                     case BluetoothAdapter.STATE_OFF:
-                        Log.d(TAG, "onReceive: STATE OFF");
+                        Log.d(TAG, "Bluetooth: STATE OFF");
                         break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        Log.d(TAG, "broadcast_receiver1: STATE TURNING OFF");
+                        Log.d(TAG, "Bluetooth: STATE TURNING OFF");
                         break;
                     case BluetoothAdapter.STATE_ON:
-                        Log.d(TAG, "broadcast_receiver1: STATE ON");
+                        Log.d(TAG, "Bluetooth: STATE ON");
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
-                        Log.d(TAG, "broadcast_receiver1: STATE TURNING ON");
+                        Log.d(TAG, "Bluetooth: STATE TURNING ON");
                         break;
                 }
             }
-        }
-    };
 
-    //receiver for Discoverable
-    private final BroadcastReceiver broadcast_receiver2 = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-        {
-            final String action = intent.getAction();
-
-            if (action.equals(BT_adapter.ACTION_SCAN_MODE_CHANGED))
+            //Discoverability
+            if (action.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED))
             {
                 int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
 
                 switch (mode) {
                     //Device is in Discoverable mode
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-                        Log.d(TAG, "broadcast_receiver2: Discoverability Enabled.");
+                        Log.d(TAG, "Discoverability Enabled.");
                         break;
                     //Device is not in Discoverable mode
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-                        Log.d(TAG, "broadcast_receiver2: Discoverability Disabled. Able to receive connections.");
+                        Log.d(TAG, "Discoverability Disabled. Able to receive connections.");
                         break;
                     case BluetoothAdapter.SCAN_MODE_NONE:
-                        Log.d(TAG, "broadcast_receiver2: Discoverability Disabled. Not able to receive connections.");
+                        Log.d(TAG, "Discoverability Disabled. Not able to receive connections.");
                         break;
                     case BluetoothAdapter.STATE_CONNECTING:
-                        Log.d(TAG, "broadcast_receiver2: Connecting...");
+                        Log.d(TAG, "Connecting...");
                         break;
                     case BluetoothAdapter.STATE_CONNECTED:
-                        Log.d(TAG, "broadcast_receiver2: Connected.");
+                        Log.d(TAG, "Connected.");
                         break;
                 }
             }
-        };
-        }
-    };
 
-    //receiver for Discover devices
-    private BroadcastReceiver broadcast_receiver3 = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            Log.d(TAG, "onReceive: ACTION FOUND");
-
+            //Scan for devices
             if(action.equals(BluetoothDevice.ACTION_FOUND))
             {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                BT_devices.add(device);
+                BT_devices_list.add(device);
 
-                Log.d(TAG, "onReceive: " + device.getName() + " " + device.getAddress());
+                Log.d(TAG, "Found: " + device.getName() + " at " + device.getAddress());
 
-                device_list_adapter = new Device_List_Adapter(context, R.layout.activity_device__list__adapter, BT_devices);
-                //new_devices_list.setAdapter(device_list_adapter);
+                device_list_adapter = new Device_List_Adapter(context, R.layout.activity_device__list__adapter, BT_devices_list);
+                new_devices_list.setAdapter(device_list_adapter);
+
+                toastText = "Discovered: " + device.getName();
+                Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+            }
+
+            //Pairing with devices
+            if(action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED))
+            {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                //case 1: bonded already
+                if(device.getBondState() == BluetoothDevice.BOND_BONDED)
+                {
+                    Log.d(TAG, "Pairing: BOND_BONDED");
+                }
+                //case 2: creating a bond
+                if(device.getBondState() == BluetoothDevice.BOND_BONDING)
+                {
+                    Log.d(TAG, "Pairing: BOND_BONDING");
+                }
+                //case 3: breaking a bond
+                if(device.getBondState() == BluetoothDevice.BOND_NONE)
+                {
+                    Log.d(TAG, "Pairing: BOND_NONE");
+                }
             }
         }
     };
+
+    /*BroadcastReceiver discovery_result = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String device_name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
+            BluetoothDevice device;
+            device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            toastText = "Discovered: " + device_name;
+            Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+        }
+    }*/
 
     //Required for API 23+ to check bluetooth permissions
     /*private void checkBTpermissions()
     {
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+        int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
+        permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COURSE_LOCATION");
+        if(permissionCheck != 0)
         {
-            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
-            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COURSE_LOCATION");
-            if(permissionCheck != 0)
-            {
-                this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
-            }
-            else
-            {
-                Log.d(TAG, "checkBTpermissions: No need to check permissions. SDK version < LOLLIPOP.");
-            }
+            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+        }
+        else
+        {
+            Log.d(TAG, "checkBTpermissions: No need to check permissions. SDK version < LOLLIPOP.");
         }
     }*/
 }

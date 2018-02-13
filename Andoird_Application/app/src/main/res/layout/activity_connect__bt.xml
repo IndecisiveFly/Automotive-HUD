@@ -22,36 +22,14 @@
         android:layout_width="match_parent"
         android:layout_height="50dp" />
 
-    <TextView
-        android:id="@+id/bluetooth_status"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
     <Button
         android:id="@+id/bluetooth_toggle_btn"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:backgroundTint="@android:color/holo_blue_light"
         android:onClick="bluetooth_on_off"
-        android:text="@string/bluetooth_button"
+        android:text=""
         android:textAllCaps="false" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
-    <TextView
-        android:id="@+id/discoverable_status"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="" />
 
     <Space
         android:layout_width="match_parent"
@@ -76,11 +54,12 @@
         android:layout_height="50dp"
         android:onClick="find_devices"
         android:backgroundTint="@android:color/holo_blue_light"
-        android:text="@string/connect_device"
+        android:text="@string/find_devices"
         android:textAllCaps="false" />
 
     <ListView
         android:id="@+id/devices_list_view"
+        android:background="@color/White"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
