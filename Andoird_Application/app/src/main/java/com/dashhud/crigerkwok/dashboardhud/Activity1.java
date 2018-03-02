@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -17,8 +18,10 @@ public class Activity1 extends AppCompatActivity {
 
     TextView gmaps_status;
     TextView fm_current;
+    TextView saved_fm;
 
     Button connect_gmaps;
+    Button set_station;
 
     ImageButton fm_back;
     ImageButton fm_forward;
@@ -30,6 +33,8 @@ public class Activity1 extends AppCompatActivity {
 
     SharedPreferences pref;
 
+    String station;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +42,10 @@ public class Activity1 extends AppCompatActivity {
 
         gmaps_status = findViewById(R.id.maps_connected_text);
         fm_current = findViewById(R.id.FM_frequency_text);
+        saved_fm = findViewById(R.id.saved_station_str);
 
         connect_gmaps = findViewById(R.id.connect_google_maps);
+        set_station = findViewById(R.id.set_station_btn);
 
         fm_back = findViewById(R.id.FM_prev);
         fm_forward = findViewById(R.id.FM_next);
@@ -47,8 +54,17 @@ public class Activity1 extends AppCompatActivity {
 
         pref = getSharedPreferences("status", Context.MODE_PRIVATE);
 
-        update_station();
+        saved_fm.setText(pref.getString("saved_fm", ""));
+        fm_current.setText(pref.getString("last_fm", "88.1"));
+        station = pref.getString("saved_fm", "");
 
+        String last = pref.getString("last_fm", "88.1");
+        Double a = Double.parseDouble(last);
+        a = a - 88.1;
+        int b = (int) (a/0.2);
+        fm_select.setProgress(b);
+
+        update_station();
     }
 
     public void update_station()
@@ -63,12 +79,12 @@ public class Activity1 extends AppCompatActivity {
                 sb_current = sb_current + 88.1;
                 DecimalFormat df = new DecimalFormat("#.#");
                 df.setRoundingMode(RoundingMode.CEILING);
-                String station = df.format(sb_current);
+                station = df.format(sb_current);
                 fm_current.setText(station);
 
-                /*SharedPreferences.Editor editor = pref.edit();
-                editor.putInt("current_station", fm_select.getProgress());
-                editor.apply();*/
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString("last_fm", station);
+                editor.apply();
             }
 
             @Override
@@ -91,5 +107,18 @@ public class Activity1 extends AppCompatActivity {
     public void prev_station(View v)
     {
         fm_select.incrementProgressBy(-1);
+    }
+
+    public void save_station(View v)
+    {
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("saved_fm", station);
+        editor.apply();
+
+        String toastText = "Saved: " + station;
+        Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
+
+        finish();
+        startActivity(getIntent());
     }
 }

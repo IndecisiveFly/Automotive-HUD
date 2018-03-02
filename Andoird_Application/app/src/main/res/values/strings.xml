@@ -3,4 +3,5 @@
     <string name="auto_hud_control">Automotive HUD Control</string>
     <string name="bluetooth_discoverable">Make Discoverable</string>
     <string name="find_devices">Scan for devices</string>
+    <string name="attempt_reconnect">Attempt Reconnect</string>
 </resources>

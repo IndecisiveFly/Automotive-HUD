@@ -1,6 +1,7 @@
 package com.dashhud.crigerkwok.dashboardhud;
 
 import android.Manifest;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -27,7 +28,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "Connect_BT";
 
@@ -35,9 +36,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
     Button BT_toggle;
     Button BT_discoverable;
-    Button BT_connect;
-
-    TextView BT_status;
+    Button BT_reconnect;
+    Button BT_scan;
 
     public ArrayList<BluetoothDevice> BT_devices_list;
     public Device_List_Adapter device_list_adapter;
@@ -47,6 +47,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     String bluetooth_off = "Turn Bluetooth ON";
 
     String toastText = "";
+    Boolean device_found = false;
     BluetoothDevice BT_device;
 
     SharedPreferences pref;
@@ -58,7 +59,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
         BT_toggle = findViewById(R.id.bluetooth_toggle_btn);
         BT_discoverable = findViewById(R.id.discoverable_btn);
-        BT_connect = findViewById(R.id.connect_btn);
+        BT_reconnect = findViewById(R.id.reconnect_btn);
+        BT_scan = findViewById(R.id.scan_btn);
 
         BT_adapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -89,29 +91,24 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         check_bt();
     }
 
     //onClick for Bluetooth ON/OFF button, changes Bluetooth state and sets appropriate views/strings
-    public void bluetooth_on_off(View v)
-    {
-        if(BT_adapter == null)
-        {
+    public void bluetooth_on_off(View v) {
+        if (BT_adapter == null) {
             Log.d(TAG, "Does not have BT capabilities");
         }
-        if(!BT_adapter.isEnabled())
-        {
+        if (!BT_adapter.isEnabled()) {
             BT_adapter.enable();
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
             registerReceiver(broadcast_receiver, filter);
         }
-        if(BT_adapter.isEnabled())
-        {
+        if (BT_adapter.isEnabled()) {
             BT_adapter.disable();
 
             IntentFilter filter = new IntentFilter();
@@ -124,29 +121,38 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     }
 
     //initial onCreate check of Bluetooth status, sets appropriate views/strings.
-    public void check_bt()
-    {
-        if(BT_adapter == null)
-        {
+    public void check_bt() {
+        if (BT_adapter == null) {
             Log.d(TAG, "Does not have BT capabilities");
         }
-        if(!BT_adapter.isEnabled())
-        {
+        if (!BT_adapter.isEnabled()) {
             BT_toggle.setText(bluetooth_off);
             BT_discoverable.setEnabled(false);
-            BT_connect.setEnabled(false);
+            BT_reconnect.setEnabled(false);
+            BT_scan.setEnabled(false);
         }
-        if(BT_adapter.isEnabled())
-        {
+        if (BT_adapter.isEnabled()) {
             BT_toggle.setText(bluetooth_on);
             BT_discoverable.setEnabled(true);
-            BT_connect.setEnabled(true);
+            BT_scan.setEnabled(true);
+
+            check_connect();
+        }
+    }
+
+    //checks if there is a last known device, to set up buttons accordingly
+    public void check_connect() {
+        String last_used_device = pref.getString("last_BT_device_address", null);
+
+        if (last_used_device != null) {
+            BT_reconnect.setEnabled(true);
+        } else {
+            BT_reconnect.setEnabled(false);
         }
     }
 
     //onClick for enabling discoverable mode for 30 seconds
-    public void bluetooth_discoverable(View v)
-    {
+    public void bluetooth_discoverable(View v) {
         Log.d(TAG, "bluetooth_discoverable: Making device discoverable for 30 seconds");
 
         Intent discoverable_i = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
@@ -154,8 +160,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         startActivity(discoverable_i);
     }
 
-    //onClick for showing a list of devices
-    public void find_devices(View v)
+    //onClick for attempting a reconnect to last paired device
+    public void attempt_reconnect(View v)
     {
         String last_used_device = pref.getString("last_BT_device_address", null);
 
@@ -173,13 +179,52 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     toastText = "Found device: " + paired_device.getName() + "@" + last_used_device;
                     Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
                     BT_device = paired_device;
+
+                    device_found = true;
+
+                    Intent a = new Intent(this, Activity1.class);
+                    startActivity(a);
+                }
+                else
+                {
+                    device_found = false;
                 }
             }
+            if(!device_found)
+            {
+                toastText = "Previous device not found";
+                Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
+                BT_reconnect.setEnabled(false);
+            }
         }
+    }
 
-        Log.d(TAG, "find_devices: Looking for unpaired devices.");
-        if(BT_adapter.isDiscovering())
+    //onClick for showing a list of devices
+    public void find_devices(View v)
+    {
+        //String last_used_device = pref.getString("last_BT_device_address", null);
+
+        BT_devices_list = new ArrayList<>();
+
+        /*if(last_used_device != null)
         {
+            toastText = "Checking for known paired device: " + last_used_device;
+            Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+            Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
+            for(BluetoothDevice paired_device : paired_devices)
+            {
+                if(paired_device.getAddress().equals(last_used_device))
+                {
+                    toastText = "Found device: " + paired_device.getName() + "@" + last_used_device;
+                    Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+                    BT_device = paired_device;
+                }
+            }
+            Intent a = new Intent(this, Activity1.class);
+            startActivity(a);
+        }*/
+        Log.d(TAG, "find_devices: Looking for unpaired devices.");
+        if (BT_adapter.isDiscovering()) {
             BT_adapter.cancelDiscovery();
             Log.d(TAG, "find_devices: Canceling discovery.");
 
@@ -188,8 +233,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
             BT_adapter.startDiscovery();
         }
-        if(!BT_adapter.isDiscovering())
-        {
+        if (!BT_adapter.isDiscovering()) {
             //check bluetooth permissions in manifest
             checkBTpermissions();
 
@@ -216,9 +260,11 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         BT_devices_list.get(i).createBond();
     }
 
-    BroadcastReceiver broadcast_receiver = new BroadcastReceiver() {
+    BroadcastReceiver broadcast_receiver = new BroadcastReceiver()
+    {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context context, Intent intent)
+        {
             String action = intent.getAction();
 
             Log.d(TAG, "action = " + action);
@@ -287,8 +333,6 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     toastText = "Discovered: " + device.getName();
                     Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
                 }
-
-
             }
 
             //Pairing with devices
@@ -300,6 +344,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 if(device.getBondState() == BluetoothDevice.BOND_BONDED)
                 {
                     Log.d(TAG, "Pairing: BOND_BONDED");
+                    Intent a = new Intent(Connect_BT.this, Activity1.class);
+                    startActivity(a);
                 }
                 //case 2: creating a bond
                 if(device.getBondState() == BluetoothDevice.BOND_BONDING)
@@ -311,6 +357,11 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 {
                     Log.d(TAG, "Pairing: BOND_NONE");
                 }
+
+                SharedPreferences.Editor editor = pref.edit();
+                String address = device.getAddress();
+                editor.putString("last_BT_device_address", address);
+                editor.apply();
             }
         }
     };

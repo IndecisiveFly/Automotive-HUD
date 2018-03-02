@@ -20,7 +20,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="50dp" />
+        android:layout_height="30dp" />
 
     <Button
         android:id="@+id/bluetooth_toggle_btn"
@@ -49,13 +49,30 @@
         android:layout_height="10dp" />
 
     <Button
-        android:id="@+id/connect_btn"
+        android:id="@+id/reconnect_btn"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:onClick="attempt_reconnect"
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:text="@string/attempt_reconnect"
+        android:textAllCaps="false" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <Button
+        android:id="@+id/scan_btn"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:onClick="find_devices"
         android:backgroundTint="@android:color/holo_blue_light"
         android:text="@string/find_devices"
         android:textAllCaps="false" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
 
     <ListView
         android:id="@+id/devices_list_view"
