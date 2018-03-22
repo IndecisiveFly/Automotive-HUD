@@ -1,7 +1,24 @@
 <resources>
     <string name="app_name">Automotive HUD</string>
     <string name="auto_hud_control">Automotive HUD Control</string>
+    <string name="auto_hud_dest">Automotive HUD Destination</string>
     <string name="bluetooth_discoverable">Make Discoverable</string>
     <string name="find_devices">Scan for devices</string>
     <string name="attempt_reconnect">Attempt Reconnect</string>
+    <string name="my_location">Your current location:</string>
+    <string name="address">Address:\ \ </string>
+    <string name="address_hint">567 1st St.</string>
+    <string name="state">State:\ \ </string>
+    <string name="state_hint">New York</string>
+    <string name="city">City:\ \ </string>
+    <string name="city_hint">Buffalo</string>
+    <string name="set_dest">Set Destination</string>
+    <string name="device_connection">Connection to device:\ \ </string>
+    <string name="navigation">Setup Navigation</string>
+    <string name="dest_status">Destination:\ \ </string>
+    <string name="select_fm">Select FM Radio Station:\ \ </string>
+    <string name="set_station">Set Station</string>
+    <string name="current_station">Current:\ \ </string>
+    <string name="enter_dest">Enter Destination:\ \ </string>
+    <string name="current_dest">Current Destination:\ \ </string>
 </resources>

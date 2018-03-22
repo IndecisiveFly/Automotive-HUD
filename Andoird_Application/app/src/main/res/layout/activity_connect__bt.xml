@@ -6,78 +6,81 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/LightBlue"
-    android:padding="20dp"
-
     tools:context="com.dashhud.crigerkwok.dashboardhud.Connect_BT">
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:gravity="center"
-        android:text="@string/auto_hud_control"
+        android:background="@android:color/holo_blue_dark"
+        android:text="@string/app_name"
         android:textColor="@color/Black"
         android:textSize="20sp" />
 
-    <Space
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="30dp">
 
-    <Button
-        android:id="@+id/bluetooth_toggle_btn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:onClick="bluetooth_on_off"
-        android:text=""
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/bluetooth_toggle_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:onClick="bluetooth_on_off"
+            android:text=""
+            android:textAllCaps="false" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
-    <Button
-        android:id="@+id/discoverable_btn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:onClick="bluetooth_discoverable"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:text="@string/bluetooth_discoverable"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/discoverable_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:onClick="bluetooth_discoverable"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:text="@string/bluetooth_discoverable"
+            android:textAllCaps="false" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
-    <Button
-        android:id="@+id/reconnect_btn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:onClick="attempt_reconnect"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:text="@string/attempt_reconnect"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/reconnect_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:onClick="attempt_reconnect"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:text="@string/attempt_reconnect"
+            android:textAllCaps="false" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
-    <Button
-        android:id="@+id/scan_btn"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:onClick="find_devices"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:text="@string/find_devices"
-        android:textAllCaps="false" />
+        <Button
+            android:id="@+id/scan_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:onClick="find_devices"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:text="@string/find_devices"
+            android:textAllCaps="false" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="5dp" />
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
-    <ListView
-        android:id="@+id/devices_list_view"
-        android:background="@color/White"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <ListView
+            android:id="@+id/devices_list_view"
+            android:background="@color/White"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>

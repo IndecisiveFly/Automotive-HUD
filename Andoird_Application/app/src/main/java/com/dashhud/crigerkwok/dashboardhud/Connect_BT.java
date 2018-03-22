@@ -1,7 +1,6 @@
 package com.dashhud.crigerkwok.dashboardhud;
 
 import android.Manifest;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -9,11 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
-import android.os.Message;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,10 +16,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -49,6 +42,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     String toastText = "";
     Boolean device_found = false;
     BluetoothDevice BT_device;
+
+    //BT_Connection bt_connection;
 
     SharedPreferences pref;
 
@@ -142,7 +137,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
     //checks if there is a last known device, to set up buttons accordingly
     public void check_connect() {
-        String last_used_device = pref.getString("last_BT_device_address", null);
+        String last_used_device = pref.getString("last_BT_device_name", null);
 
         if (last_used_device != null) {
             BT_reconnect.setEnabled(true);
@@ -163,7 +158,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     //onClick for attempting a reconnect to last paired device
     public void attempt_reconnect(View v)
     {
-        String last_used_device = pref.getString("last_BT_device_address", null);
+        String last_used_device = pref.getString("last_BT_device_name", null);
 
         BT_devices_list = new ArrayList<>();
 
@@ -174,16 +169,19 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
             for(BluetoothDevice paired_device : paired_devices)
             {
-                if(paired_device.getAddress().equals(last_used_device))
+                if(paired_device.getName().equals(last_used_device))
                 {
-                    toastText = "Found device: " + paired_device.getName() + "@" + last_used_device;
+                    toastText = "Found device: " + paired_device.getName() + " @ " + paired_device.getAddress();
                     Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
                     BT_device = paired_device;
 
                     device_found = true;
 
-                    Intent a = new Intent(this, Activity1.class);
+                    //bt_connection.setDevice(paired_device);
+
+                    Intent a = new Intent(this, Controller.class);
                     startActivity(a);
+                    break;
                 }
                 else
                 {
@@ -220,7 +218,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     BT_device = paired_device;
                 }
             }
-            Intent a = new Intent(this, Activity1.class);
+            Intent a = new Intent(this, controller.class);
             startActivity(a);
         }*/
         Log.d(TAG, "find_devices: Looking for unpaired devices.");
@@ -255,9 +253,26 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         Log.d(TAG, "onItemClick: device_name = " + device_name);
         Log.d(TAG, "onItemClick: device_addr = " + device_addr);
 
+        Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
+        if (paired_devices.size() > 0)
+        {
+            for(BluetoothDevice device : paired_devices)
+            {
+                if(device_name.equals(device.getName()))
+                {
+                    //bt_connection.setDevice(device);
+                    Intent a = new Intent(this, Controller.class);
+                    startActivity(a);
+                    break;
+                }
+            }
+        }
+
         //create the bond
         Log.d(TAG, "Trying to pair with " + device_name);
         BT_devices_list.get(i).createBond();
+
+        BT_device = BT_devices_list.get(i);
     }
 
     BroadcastReceiver broadcast_receiver = new BroadcastReceiver()
@@ -344,7 +359,9 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 if(device.getBondState() == BluetoothDevice.BOND_BONDED)
                 {
                     Log.d(TAG, "Pairing: BOND_BONDED");
-                    Intent a = new Intent(Connect_BT.this, Activity1.class);
+                    BT_device = device;
+                    //bt_connection.setDevice(device);
+                    Intent a = new Intent(Connect_BT.this, Controller.class);
                     startActivity(a);
                 }
                 //case 2: creating a bond
@@ -359,8 +376,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 }
 
                 SharedPreferences.Editor editor = pref.edit();
-                String address = device.getAddress();
-                editor.putString("last_BT_device_address", address);
+                String name = device.getName();
+                editor.putString("last_BT_device_name", name);
                 editor.apply();
             }
         }

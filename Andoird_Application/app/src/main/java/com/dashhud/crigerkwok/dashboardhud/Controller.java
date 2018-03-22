@@ -1,9 +1,12 @@
 package com.dashhud.crigerkwok.dashboardhud;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -12,16 +15,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.math.RoundingMode;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
+import java.util.UUID;
 
-public class Activity1 extends AppCompatActivity {
+public class Controller extends AppCompatActivity {
 
+    TextView device_status;
     TextView gmaps_status;
     TextView fm_current;
     TextView saved_fm;
 
     Button connect_gmaps;
     Button set_station;
+
+    //BT_Connection bt_connection;
+    Button connect;
+    TextView other_station;
+    private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
+    BluetoothDevice bt_device;
 
     ImageButton fm_back;
     ImageButton fm_forward;
@@ -32,14 +44,16 @@ public class Activity1 extends AppCompatActivity {
     String not_connected = "Not Connected";
 
     SharedPreferences pref;
+    SharedPreferences dest_pref;
 
     String station;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_1);
+        setContentView(R.layout.controller);
 
+        device_status = findViewById(R.id.device_connection);
         gmaps_status = findViewById(R.id.maps_connected_text);
         fm_current = findViewById(R.id.FM_frequency_text);
         saved_fm = findViewById(R.id.saved_station_str);
@@ -47,12 +61,18 @@ public class Activity1 extends AppCompatActivity {
         connect_gmaps = findViewById(R.id.connect_google_maps);
         set_station = findViewById(R.id.set_station_btn);
 
+        //start send/receive data section
+        other_station = findViewById(R.id.saved_from_other);
+        connect = findViewById(R.id.connect_bt_service);
+        //end send/receive data section
+
         fm_back = findViewById(R.id.FM_prev);
         fm_forward = findViewById(R.id.FM_next);
 
         fm_select = findViewById(R.id.FM_radio_select);
 
         pref = getSharedPreferences("status", Context.MODE_PRIVATE);
+        dest_pref = getSharedPreferences("destination", Context.MODE_PRIVATE);
 
         saved_fm.setText(pref.getString("saved_fm", ""));
         fm_current.setText(pref.getString("last_fm", "88.1"));
@@ -64,7 +84,17 @@ public class Activity1 extends AppCompatActivity {
         int b = (int) (a/0.2);
         fm_select.setProgress(b);
 
+        //start bluetooth connection service when this activity launches.
+        //bt_device = bt_connection.getDevice();
+
+        //keep statuses current
         update_station();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dest_pref.edit().clear().apply();
     }
 
     public void update_station()
@@ -115,10 +145,26 @@ public class Activity1 extends AppCompatActivity {
         editor.putString("saved_fm", station);
         editor.apply();
 
+        //byte[] bytes = station.getBytes(Charset.defaultCharset());
+        //bt_connection.write(bytes);
+
         String toastText = "Saved: " + station;
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
 
         finish();
         startActivity(getIntent());
+    }
+
+    /* Manual attempt at starting connection service
+    public void connect_service(View v)
+    {
+        bt_connection.startClient(bt_device, app_uuid);
+    }
+    */
+
+    public void google_maps(View v)
+    {
+        Intent a = new Intent(Controller.this, Destination_Info.class);
+        startActivity(a);
     }
 }
