@@ -116,6 +116,9 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
     public void onLocationChanged(Location location) {
         longitude = location.getLongitude();
         latitude = location.getLatitude();
+        update();
+        //Intent a = new Intent(Destination_Info.this, Destination_Info.class);
+        //startActivity(a);
     }
 
     @Override

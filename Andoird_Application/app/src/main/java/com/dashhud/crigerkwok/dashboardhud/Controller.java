@@ -14,6 +14,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
@@ -22,14 +24,14 @@ import java.util.UUID;
 public class Controller extends AppCompatActivity {
 
     TextView device_status;
-    TextView gmaps_status;
+    TextView dest_status;
     TextView fm_current;
     TextView saved_fm;
 
     Button connect_gmaps;
     Button set_station;
 
-    //BT_Connection bt_connection;
+    BT_Connection bt_connection;
     Button connect;
     TextView other_station;
     private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
@@ -54,7 +56,7 @@ public class Controller extends AppCompatActivity {
         setContentView(R.layout.controller);
 
         device_status = findViewById(R.id.device_connection);
-        gmaps_status = findViewById(R.id.maps_connected_text);
+        dest_status = findViewById(R.id.dest_set_text);
         fm_current = findViewById(R.id.FM_frequency_text);
         saved_fm = findViewById(R.id.saved_station_str);
 
@@ -84,8 +86,10 @@ public class Controller extends AppCompatActivity {
         int b = (int) (a/0.2);
         fm_select.setProgress(b);
 
-        //start bluetooth connection service when this activity launches.
-        //bt_device = bt_connection.getDevice();
+        //get selected device and start bluetooth connection service when this activity launches.
+        Gson gson = new Gson();
+        String json = pref.getString("device", "");
+        bt_device = gson.fromJson(json, BluetoothDevice.class);
 
         //keep statuses current
         update_station();
@@ -97,8 +101,27 @@ public class Controller extends AppCompatActivity {
         dest_pref.edit().clear().apply();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        update_station();
+    }
+
     public void update_station()
     {
+        //check if there is a destination set (if any of the 3 strings are null, not set)
+        String a = dest_pref.getString("saved_address", "");
+        String s = dest_pref.getString("saved_state", "");
+        String c = dest_pref.getString("saved_city", "");
+        if(a.equals("") || s.equals("") || c.equals(""))
+        {
+            dest_status.setText("Not Set");
+        }
+        else
+        {
+            dest_status.setText("Set");
+        }
+
         fm_select.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar sb, int progress, boolean from_user) {
@@ -155,14 +178,16 @@ public class Controller extends AppCompatActivity {
         startActivity(getIntent());
     }
 
-    /* Manual attempt at starting connection service
+    //Manual attempt at starting connection service
     public void connect_service(View v)
     {
-        bt_connection.startClient(bt_device, app_uuid);
+        String name = bt_device.getName();
+        String address = bt_device.getAddress();
+        Toast.makeText(this, name + " @ " + address, Toast.LENGTH_LONG).show();
+        //bt_connection.startClient(bt_device, app_uuid);
     }
-    */
 
-    public void google_maps(View v)
+    public void to_destination(View v)
     {
         Intent a = new Intent(Controller.this, Destination_Info.class);
         startActivity(a);

@@ -6,12 +6,14 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -26,7 +28,7 @@ public class BT_Connection {
     private AcceptThread my_accept_thread;
     private ConnectThread my_connect_thread;
     private BluetoothDevice my_device;
-    BluetoothDevice other_device;
+    //BluetoothDevice other_device;
     private UUID device_UUID;
     ProgressDialog my_progress_dialog;
     private ConnectedThread my_connected_thread;
@@ -281,20 +283,55 @@ public class BT_Connection {
         Log.d(TAG, "write: Write called");
         my_connected_thread.write(out);
     }
-
-    /* Standard getter and setter
-    public void setDevice(BluetoothDevice device)
-    {
-        this.other_device = device;
-    }
-
-    public BluetoothDevice getDevice()
-    {
-        return this.other_device;
-    }
-    */
 }
 
+/*public class BT_Connection {
+
+    private OutputStream outputStream;
+    private InputStream inStream;
+
+    private void init() throws IOException {
+        BluetoothAdapter blueAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (blueAdapter != null) {
+            if (blueAdapter.isEnabled()) {
+                Set<BluetoothDevice> bondedDevices = blueAdapter.getBondedDevices();
+
+                if (bondedDevices.size() > 0) {
+                    Object[] devices = (Object[]) bondedDevices.toArray();
+                    BluetoothDevice device = (BluetoothDevice) devices[position];
+                    ParcelUuid[] uuids = device.getUuids();
+                    BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
+                    socket.connect();
+                    outputStream = socket.getOutputStream();
+                    inStream = socket.getInputStream();
+                }
+
+                Log.e("error", "No appropriate paired devices.");
+            } else {
+                Log.e("error", "Bluetooth is disabled.");
+            }
+        }
+    }
+
+    public void write(String s) throws IOException {
+        outputStream.write(s.getBytes());
+    }
+
+    public void run() {
+        final int BUFFER_SIZE = 1024;
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int bytes = 0;
+        int b = BUFFER_SIZE;
+
+        while (true) {
+            try {
+                bytes = inStream.read(buffer, bytes, BUFFER_SIZE - bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}*/
 
 
 

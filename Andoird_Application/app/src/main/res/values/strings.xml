@@ -21,4 +21,6 @@
     <string name="current_station">Current:\ \ </string>
     <string name="enter_dest">Enter Destination:\ \ </string>
     <string name="current_dest">Current Destination:\ \ </string>
+    <string name="location">Location:\ \ </string>
+    <string name="location_hint">Safeway</string>
 </resources>

@@ -57,7 +57,7 @@
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@android:color/holo_blue_light"
-                android:onClick="google_maps"
+                android:onClick="to_destination"
                 android:text="@string/navigation"
                 android:textAllCaps="false"
                 android:textSize="12sp" />
@@ -74,7 +74,7 @@
                 android:textColor="@color/Black" />
 
             <TextView
-                android:id="@+id/maps_connected_text"
+                android:id="@+id/dest_set_text"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
@@ -198,8 +198,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/connect_bt_service"
-            android:visibility="gone"
+            android:visibility="visible"
             android:text="Connect"
+            android:onClick="connect_service"
             android:layout_gravity="center" />
         <TextView
             android:layout_width="wrap_content"

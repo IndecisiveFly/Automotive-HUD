@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -43,7 +45,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
     Boolean device_found = false;
     BluetoothDevice BT_device;
 
-    //BT_Connection bt_connection;
+    BT_Connection bt_connection;
 
     SharedPreferences pref;
 
@@ -178,6 +180,12 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     device_found = true;
 
                     //bt_connection.setDevice(paired_device);
+                    //save device object to shared preferences
+                    SharedPreferences.Editor editor = pref.edit();
+                    Gson gson = new Gson();
+                    String json = gson.toJson(paired_device);
+                    editor.putString("device", json);
+                    editor.apply();
 
                     Intent a = new Intent(this, Controller.class);
                     startActivity(a);
@@ -260,7 +268,13 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             {
                 if(device_name.equals(device.getName()))
                 {
-                    //bt_connection.setDevice(device);
+                    //save device object to shared preferences
+                    SharedPreferences.Editor editor = pref.edit();
+                    Gson gson = new Gson();
+                    String json = gson.toJson(device);
+                    editor.putString("device", json);
+                    editor.apply();
+
                     Intent a = new Intent(this, Controller.class);
                     startActivity(a);
                     break;
@@ -360,7 +374,14 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 {
                     Log.d(TAG, "Pairing: BOND_BONDED");
                     BT_device = device;
-                    //bt_connection.setDevice(device);
+
+                    //save paired device
+                    SharedPreferences.Editor editor = pref.edit();
+                    Gson gson = new Gson();
+                    String json = gson.toJson(device);
+                    editor.putString("device", json);
+                    editor.apply();
+
                     Intent a = new Intent(Connect_BT.this, Controller.class);
                     startActivity(a);
                 }
