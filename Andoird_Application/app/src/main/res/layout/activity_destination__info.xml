@@ -43,6 +43,58 @@
 
     <Space
         android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/get_speed_round"
+            android:textColor="@color/Red"
+            android:textSize="20sp"
+            android:text="No speed"
+            android:layout_gravity="center"/>
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/get_speed_mps"
+            android:textColor="@color/Green"
+            android:textSize="20sp"
+            android:text="No speed"
+            android:layout_gravity="center"/>
+
+        <Space
+            android:layout_width="20dp"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/get_speed_mph"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="No speed"
+            android:textSize="20sp"
+            android:textColor="@android:color/holo_orange_dark" />
+
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <Space
+        android:layout_width="match_parent"
         android:layout_height="20dp" />
 
     <TextView

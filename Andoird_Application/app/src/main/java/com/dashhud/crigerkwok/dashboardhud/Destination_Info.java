@@ -10,7 +10,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Handler;
+import android.provider.Settings;
 import android.provider.SyncStateContract;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,14 +21,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import static android.location.LocationManager.GPS_PROVIDER;
+
 public class Destination_Info extends AppCompatActivity implements LocationListener{
 
     TextView current_address;
+    TextView current_speed_calc;
+    TextView get_speed_mps;
+    TextView get_speed_mph;
+
     TextView saved_address;
     TextView saved_state;
     TextView saved_city;
@@ -41,6 +51,10 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
     LocationManager locationManager;
     Double latitude;
     Double longitude;
+    int speed;
+    float get_speed;
+    float mph_calc;
+    Location prev_location;
 
     SharedPreferences pref;
 
@@ -50,6 +64,10 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
         setContentView(R.layout.activity_destination__info);
 
         current_address = findViewById(R.id.current_address);
+        current_speed_calc = findViewById(R.id.get_speed_round);
+        get_speed_mps = findViewById(R.id.get_speed_mps);
+        get_speed_mph = findViewById(R.id.get_speed_mph);
+
         saved_address = findViewById(R.id.saved_address);
         saved_state = findViewById(R.id.saved_state);
         saved_city = findViewById(R.id.saved_city);
@@ -67,6 +85,16 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
 
         check_perms();
         update();
+
+        final Handler handler=new Handler();
+        handler.post(new Runnable(){
+            @Override
+            public void run() {
+                update();
+                handler.postDelayed(this,1000); // set time here to refresh textView
+            }
+        });
+
     }
 
     @Override
@@ -82,6 +110,13 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
             addresses = gc.getFromLocation(latitude, longitude, 1);
             String address_l = addresses.get(0).getAddressLine(0);
             current_address.setText(address_l);
+            String mph = Integer.toString(speed) + "  MPH";
+            String mps = Float.toString(get_speed) + "  M/S";
+            String calc_mph = Float.toString(mph_calc) + "  MPH";
+            current_speed_calc.setText(mph);
+            get_speed_mps.setText(mps);
+            get_speed_mph.setText(calc_mph);
+
         }
         catch (IOException e)
         {
@@ -114,11 +149,15 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
 
     @Override
     public void onLocationChanged(Location location) {
-        longitude = location.getLongitude();
+
         latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        get_speed = location.getSpeed();
+        mph_calc = get_speed * (float) 2.236;
+        speed = Math.round(mph_calc);
+        prev_location = location;
+
         update();
-        //Intent a = new Intent(Destination_Info.this, Destination_Info.class);
-        //startActivity(a);
     }
 
     @Override
@@ -133,7 +172,8 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(intent);
     }
 
     public void check_perms()
@@ -146,6 +186,7 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
             return;
         }
         Location location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        locationManager.requestLocationUpdates(GPS_PROVIDER,1000,0,this);
         onLocationChanged(location);
     }
 }
