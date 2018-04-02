@@ -1,21 +1,32 @@
-import socket
+from bluetooth import *
 
-hostMACAddress = '43:43:A1:12:1F:AC'
-port = 3
-backlog = 1
-size = 1024
-s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-s.bind((hostMACAddress,port))
-s.listen(backlog)
+server_sock=BluetoothSocket(RFCOMM)
+server_sock.bind(("",PORT_ANY))
+server_sock.listen(1)
 
-try:
-    client, address = s.accept()
-    while 1:
-        data = client.recv(size)
-        if data:
-            print(data)
-            client.send(data)
-except:
-    print("closing socket")
-    client.close()
-    s.close()
+port = server_sock.getsockname()[1]
+
+uuid="00101101-0000-1000-8000-A0803F9B34FB"
+
+print ("waiting for connection on RFCOMM channel %d" % port)
+
+client_sock, client_info = server_sock.accept()
+print ("Accepted connection from ", client_info)
+
+while 1:
+    try:
+        data = client_sock.recv(1024)
+        if data <=0: break
+        print ("recieved [%s]" % data)
+        client_sock.send(data)
+
+    except IOError:
+        pass
+
+    except KeyboardInterrupt:
+        print ("disconnected")
+        client_sock.close()
+        server_sock.close()
+        print ("all done")
+        break
+

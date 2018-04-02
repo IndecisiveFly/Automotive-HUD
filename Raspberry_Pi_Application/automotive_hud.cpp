@@ -34,8 +34,6 @@ int main(int argc, char* argv[])
   memset(buff, 0, sizeof(buff));
 
   //read from client
-
-  //currently read 5 messages before exiting
   
   while(1)
   {
