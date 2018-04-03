@@ -8,24 +8,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "Connect_BT";
+
+    //Controller controller;
 
     BluetoothAdapter BT_adapter;
 
@@ -43,9 +50,14 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
     String toastText = "";
     Boolean device_found = false;
+    Button connect_service;
+    EditText send_et;
+    Button send_btn;
+    private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
     BluetoothDevice BT_device;
 
     BT_Connection bt_connection;
+
 
     SharedPreferences pref;
 
@@ -58,6 +70,9 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         BT_discoverable = findViewById(R.id.discoverable_btn);
         BT_reconnect = findViewById(R.id.reconnect_btn);
         BT_scan = findViewById(R.id.scan_btn);
+        connect_service = findViewById(R.id.establish_connection_btn);
+        send_et = findViewById(R.id.send_et);
+        send_btn = findViewById(R.id.send_btn);
 
         BT_adapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -179,13 +194,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
                     device_found = true;
 
-                    //bt_connection.setDevice(paired_device);
-                    //save device object to shared preferences
-                    SharedPreferences.Editor editor = pref.edit();
-                    Gson gson = new Gson();
-                    String json = gson.toJson(paired_device);
-                    editor.putString("device", json);
-                    editor.apply();
+                    //bt_connection = new BT_Connection(Connect_BT.this);
+                    //connect_service(BT_device, app_uuid);
 
                     Intent a = new Intent(this, Controller.class);
                     startActivity(a);
@@ -212,23 +222,6 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
         BT_devices_list = new ArrayList<>();
 
-        /*if(last_used_device != null)
-        {
-            toastText = "Checking for known paired device: " + last_used_device;
-            Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
-            Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
-            for(BluetoothDevice paired_device : paired_devices)
-            {
-                if(paired_device.getAddress().equals(last_used_device))
-                {
-                    toastText = "Found device: " + paired_device.getName() + "@" + last_used_device;
-                    Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
-                    BT_device = paired_device;
-                }
-            }
-            Intent a = new Intent(this, controller.class);
-            startActivity(a);
-        }*/
         Log.d(TAG, "find_devices: Looking for unpaired devices.");
         if (BT_adapter.isDiscovering()) {
             BT_adapter.cancelDiscovery();
@@ -247,6 +240,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         }
     }
 
+    //What happens when a discovered device is clicked on
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
     {
@@ -268,18 +262,13 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             {
                 if(device_name.equals(device.getName()))
                 {
-                    //save device object to shared preferences
-                    SharedPreferences.Editor editor = pref.edit();
-                    Gson gson = new Gson();
-                    String json = gson.toJson(device);
-                    editor.putString("device", json);
-                    editor.apply();
-
-                    Intent a = new Intent(this, Controller.class);
+                    /*Intent a = new Intent(this, Controller.class);
                     startActivity(a);
-                    break;
+                    break;*/
                 }
             }
+            //String text = "No connection found";
+            //Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         }
 
         //create the bond
@@ -287,6 +276,15 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         BT_devices_list.get(i).createBond();
 
         BT_device = BT_devices_list.get(i);
+        //create a new connection to clicked device, starts with accept thread (blocking call)
+        bt_connection = new BT_Connection(Connect_BT.this);
+
+        //connect_service(BT_device, app_uuid);
+        //connect gets called once connection is accepted by clicked device
+        //bt_connection.startClient(BT_device, app_uuid);
+        //controller.transfer_connection(bt_connection);
+        //Intent a = new Intent(this, Controller.class);
+        //startActivity(a);
     }
 
     BroadcastReceiver broadcast_receiver = new BroadcastReceiver()
@@ -374,13 +372,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 {
                     Log.d(TAG, "Pairing: BOND_BONDED");
                     BT_device = device;
-
-                    //save paired device
-                    SharedPreferences.Editor editor = pref.edit();
-                    Gson gson = new Gson();
-                    String json = gson.toJson(device);
-                    editor.putString("device", json);
-                    editor.apply();
+                    bt_connection.startClient(BT_device, app_uuid);
 
                     Intent a = new Intent(Connect_BT.this, Controller.class);
                     startActivity(a);
@@ -401,6 +393,13 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                 editor.putString("last_BT_device_name", name);
                 editor.apply();
             }
+
+            //Supposed to know if Bluetooth connection is made, doesn't do it
+            if(action.equals(BluetoothDevice.ACTION_ACL_CONNECTED))
+            {
+                Toast.makeText(Connect_BT.this, "Successfully connected to device", Toast.LENGTH_SHORT).show();
+                //move_activity();
+            }
         }
     };
 
@@ -418,4 +417,37 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             Log.d(TAG, "checkBTpermissions: No need to check permissions. SDK version < LOLLIPOP.");
         }
     }
+
+    //Manual attempt at starting connection service
+    public void connect_service(BluetoothDevice device, UUID uuid)
+    {
+        Log.d(TAG, "connection_service: Initializing RFCOM Bluetooth Connection.");
+
+        String name = device.getName();
+        String address = device.getAddress();
+        Toast.makeText(this, name + " @ " + address, Toast.LENGTH_LONG).show();
+
+        bt_connection.startClient(device, uuid);
+
+        //move_activity();
+    }
+
+    public void start_connection(View v)
+    {
+        connect_service(BT_device, app_uuid);
+    }
+
+    public void send_message(View v)
+    {
+        byte[] bytes = send_et.getText().toString().getBytes(Charset.defaultCharset());
+        bt_connection.write(bytes);
+    }
+
+    public void move_activity()
+    {
+        Intent a = new Intent(this, Controller.class);
+        startActivity(a);
+    }
+
+
 }

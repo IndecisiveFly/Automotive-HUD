@@ -24,7 +24,7 @@
             android:screenOrientation="portrait"/>
         <activity
             android:name=".Connect_BT"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,7 +34,8 @@
         </activity>
         <activity
             android:name=".Destination_Info"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="stateHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
     </application>
