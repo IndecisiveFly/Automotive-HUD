@@ -1,32 +1,49 @@
 from bluetooth import *
+from visual import * 
 
-server_sock=BluetoothSocket(RFCOMM)
-server_sock.bind(("",PORT_ANY))
-server_sock.listen(1)
+def main():
+    #display class
+    display = Visual()
 
-port = server_sock.getsockname()[1]
+    #server bluetooth sockets
+    server_sock=BluetoothSocket(RFCOMM)
+    server_sock.bind(("",PORT_ANY))
+    server_sock.listen(1)
 
-uuid="00101101-0000-1000-8000-A0803F9B34FB"
+    port = server_sock.getsockname()[1]
 
-print ("waiting for connection on RFCOMM channel %d" % port)
+    uuid="00101101-0000-1000-8000-A0803F9B34FB"
 
-client_sock, client_info = server_sock.accept()
-print ("Accepted connection from ", client_info)
+    print ("waiting for connection on RFCOMM channel ", port)
 
-while 1:
-    try:
-        data = client_sock.recv(1024)
-        if data <=0: break
-        print ("recieved [%s]" % data)
-        client_sock.send(data)
+    #wait on socket and accept connection
+    client_sock, client_info = server_sock.accept()
+    print ("Accepted connection from ", client_info)
 
-    except IOError:
-        pass
+    #recieve data and process accordingly
+    while 1:
+        try:
+            data = client_sock.recv(1024)
+            if not data: break #TODO detect client d/c
+            print ("recieved: ", data)
+            if data == "quit":
+                print ("exiting")
+                client_sock.close()
+                server_sock.close()
+                display.exit()
+                break
+            display.draw_speed(data) #TODO recieve "command" and then respond accordingly 
+            client_sock.send(data)
 
-    except KeyboardInterrupt:
-        print ("disconnected")
-        client_sock.close()
-        server_sock.close()
-        print ("all done")
-        break
+        except IOError:
+            print ("IO Error")
+            pass
 
+        except KeyboardInterrupt:
+            print ("disconnected")
+            client_sock.close()
+            server_sock.close()
+            print ("all done")
+            break
+
+main()
