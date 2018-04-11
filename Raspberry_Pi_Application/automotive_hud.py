@@ -19,6 +19,7 @@ def main():
     #wait on socket and accept connection
     client_sock, client_info = server_sock.accept()
     print ("Accepted connection from ", client_info)
+    display.draw_speed("0")
 
     #recieve data and process accordingly
     while 1:
