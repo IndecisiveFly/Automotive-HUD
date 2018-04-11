@@ -28,7 +28,7 @@ public class Controller extends AppCompatActivity {
     TextView fm_current;
     TextView saved_fm;
 
-    Button connect_gmaps;
+    Button navigation;
     Button set_station;
 
     BT_Connection bt_connection;
@@ -60,7 +60,7 @@ public class Controller extends AppCompatActivity {
         fm_current = findViewById(R.id.FM_frequency_text);
         saved_fm = findViewById(R.id.saved_station_str);
 
-        connect_gmaps = findViewById(R.id.connect_google_maps);
+        navigation = findViewById(R.id.setup_nav_btn);
         set_station = findViewById(R.id.set_station_btn);
 
         //start send/receive data section
@@ -191,5 +191,10 @@ public class Controller extends AppCompatActivity {
     {
         Intent a = new Intent(Controller.this, Destination_Info.class);
         startActivity(a);
+    }
+
+    public void transfer_connection(BT_Connection connection)
+    {
+        bt_connection = connection;
     }
 }

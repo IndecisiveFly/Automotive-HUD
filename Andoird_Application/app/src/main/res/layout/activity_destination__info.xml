@@ -20,282 +20,290 @@
         android:layout_width="match_parent"
         android:layout_height="20dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/Black"
-        android:text="@string/my_location"
-        android:layout_gravity="center"/>
-
-    <Space
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="10dp" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:id="@+id/current_address"
-        android:textColor="@color/Blue"
-        android:text="Current Address here"
-        android:layout_gravity="center"/>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp"
-        android:gravity="center">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/get_speed_round"
-            android:textColor="@color/Red"
-            android:textSize="20sp"
-            android:text="No speed"
-            android:layout_gravity="center"/>
-
-        <Space
-            android:layout_width="20dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/get_speed_mps"
-            android:textColor="@color/Green"
-            android:textSize="20sp"
-            android:text="No speed"
-            android:layout_gravity="center"/>
-
-        <Space
-            android:layout_width="20dp"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/get_speed_mph"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="No speed"
-            android:textSize="20sp"
-            android:textColor="@android:color/holo_orange_dark" />
-
-    </LinearLayout>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="10dp" />
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="20dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:textColor="@color/Black"
-        android:textSize="16sp"
-        android:text="@string/enter_dest"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
-
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="@string/location"
-            android:labelFor="@+id/location_edit"
-            android:textColor="@color/Black"
-            android:textSize="16sp"/>
-
-        <EditText
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/location_edit"
-            android:hint="@string/location_hint"
-            android:inputType="textPostalAddress"
-            android:textColor="@color/Black"/>
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/Black"
+                android:text="@string/my_location"
+                android:layout_gravity="center"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/Black"
-        android:gravity="center"
-        android:text="-- OR --"/>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
+                android:id="@+id/current_address"
+                android:textColor="@color/Blue"
+                android:text="Current Address here"
+                android:layout_gravity="center"/>
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="@string/address"
-            android:labelFor="@+id/address_edit"
-            android:textColor="@color/Black"
-            android:textSize="16sp"/>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/address_edit"
-            android:hint="@string/address_hint"
-            android:inputType="textPostalAddress"
-            android:textColor="@color/Black"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/get_speed_mps"
+                android:textColor="@color/Green"
+                android:textSize="30sp"
+                android:text="No speed found"
+                android:layout_gravity="center"/>
 
-    </LinearLayout>
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+            <TextView
+                android:id="@+id/get_speed_mph"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="No speed found"
+                android:textSize="30sp"
+                android:textColor="@android:color/holo_orange_dark" />
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="@string/state"
-            android:labelFor="@+id/state_edit"
-            android:textColor="@color/Black"
-            android:textSize="16sp"/>
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/state_edit"
-            android:hint="@string/state_hint"
-            android:inputType="textPostalAddress"
-            android:textColor="@color/Black"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/get_speed_round"
+                android:textColor="@color/Red"
+                android:textSize="30sp"
+                android:text="No speed found"
+                android:layout_gravity="center"/>
 
-    </LinearLayout>
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:labelFor="@+id/city_edit"
-            android:text="@string/city"
-            android:textColor="@color/Black"
-            android:textSize="16sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:textColor="@color/Black"
+                android:textSize="16sp"
+                android:text="@string/enter_dest"/>
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/city_edit"
-            android:hint="@string/city_hint"
-            android:inputType="textPostalAddress"
-            android:textColor="@color/Black"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
 
-    </LinearLayout>
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/location"
+                    android:labelFor="@+id/location_edit"
+                    android:textColor="@color/Black"
+                    android:textSize="16sp"/>
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="20dp" />
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/location_edit"
+                    android:hint="@string/location_hint"
+                    android:inputType="textPostalAddress"
+                    android:textColor="@color/Black"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/set_destination_btn"
-        android:layout_gravity="center"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:textColor="@color/Black"
-        android:textAllCaps="false"
-        android:text="@string/set_dest"
-        android:onClick="set_destination"/>
+            </LinearLayout>
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="10dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/Black"
+                android:gravity="center"
+                android:text="-- OR --"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:textColor="@color/Black"
-        android:textSize="16sp"
-        android:text="@string/current_dest"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/address"
+                    android:labelFor="@+id/address_edit"
+                    android:textColor="@color/Black"
+                    android:textSize="16sp"/>
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/Black"
-            android:text="@string/address"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/address_edit"
+                    android:hint="@string/address_hint"
+                    android:inputType="textPostalAddress"
+                    android:textColor="@color/Black"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/saved_address"
-            android:textColor="@color/Black"/>
+            </LinearLayout>
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/state"
+                    android:labelFor="@+id/state_edit"
+                    android:textColor="@color/Black"
+                    android:textSize="16sp"/>
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/Black"
-            android:text="@string/state"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/state_edit"
+                    android:hint="@string/state_hint"
+                    android:inputType="textPostalAddress"
+                    android:textColor="@color/Black"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/saved_state"
-            android:textColor="@color/Black"/>
+            </LinearLayout>
 
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:paddingStart="30dp"
-        android:paddingEnd="30dp">
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@+id/city_edit"
+                    android:text="@string/city"
+                    android:textColor="@color/Black"
+                    android:textSize="16sp"/>
 
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/Black"
-            android:text="@string/city"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/city_edit"
+                    android:hint="@string/city_hint"
+                    android:inputType="textPostalAddress"
+                    android:textColor="@color/Black"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/saved_city"
-            android:textColor="@color/Black"/>
+            </LinearLayout>
 
-    </LinearLayout>
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="20dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/set_destination_btn"
+                android:layout_gravity="center"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:textColor="@color/Black"
+                android:textAllCaps="false"
+                android:text="@string/set_dest"
+                android:onClick="set_destination"/>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:textColor="@color/Black"
+                android:textSize="16sp"
+                android:text="@string/current_dest"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/Black"
+                    android:text="@string/address"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/saved_address"
+                    android:textColor="@color/Black"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/Black"
+                    android:text="@string/state"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/saved_state"
+                    android:textColor="@color/Black"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
+
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/Black"
+                    android:text="@string/city"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/saved_city"
+                    android:textColor="@color/Black"/>
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="10dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

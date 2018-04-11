@@ -17,70 +17,106 @@
         android:textColor="@color/Black"
         android:textSize="20sp" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="30dp">
+        android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/bluetooth_toggle_btn"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:onClick="bluetooth_on_off"
-            android:text=""
-            android:textAllCaps="false" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="30dp">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
+            <Button
+                android:id="@+id/bluetooth_toggle_btn"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:onClick="bluetooth_on_off"
+                android:text=""
+                android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/discoverable_btn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:onClick="bluetooth_discoverable"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:text="@string/bluetooth_discoverable"
-            android:textAllCaps="false" />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
+            <Button
+                android:id="@+id/discoverable_btn"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:onClick="bluetooth_discoverable"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:text="@string/bluetooth_discoverable"
+                android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/reconnect_btn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:onClick="attempt_reconnect"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:text="@string/attempt_reconnect"
-            android:textAllCaps="false" />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
+            <Button
+                android:id="@+id/reconnect_btn"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:onClick="attempt_reconnect"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:text="@string/attempt_reconnect"
+                android:textAllCaps="false" />
 
-        <Button
-            android:id="@+id/scan_btn"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:onClick="find_devices"
-            android:backgroundTint="@android:color/holo_blue_light"
-            android:text="@string/find_devices"
-            android:textAllCaps="false" />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="10dp" />
+            <Button
+                android:id="@+id/scan_btn"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:onClick="find_devices"
+                android:backgroundTint="@android:color/holo_blue_light"
+                android:text="@string/find_devices"
+                android:textAllCaps="false" />
 
-        <ListView
-            android:id="@+id/devices_list_view"
-            android:background="@color/White"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/send_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:singleLine="true"
+                android:visibility="gone" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Send"
+                android:id="@+id/send_btn"
+                android:onClick="send_message"
+                android:visibility="gone"/>
+
+            <ListView
+                android:id="@+id/devices_list_view"
+                android:background="@color/White"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/establish_connection_btn"
+                android:layout_gravity="center"
+                android:onClick="start_connection"
+                android:text="Connect"
+                android:visibility="visible"/>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

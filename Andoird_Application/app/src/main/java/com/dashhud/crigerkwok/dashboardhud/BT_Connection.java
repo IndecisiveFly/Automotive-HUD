@@ -6,8 +6,11 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,133 +31,17 @@ public class BT_Connection {
     private AcceptThread my_accept_thread;
     private ConnectThread my_connect_thread;
     private BluetoothDevice my_device;
-    //BluetoothDevice other_device;
     private UUID device_UUID;
     ProgressDialog my_progress_dialog;
     private ConnectedThread my_connected_thread;
+
+    Handler handler;
 
     public BT_Connection(Context context)
     {
         my_context = context;
         bt_adapter = BluetoothAdapter.getDefaultAdapter();
         start();
-    }
-
-    //thread that sits and waits for a connection
-    private class AcceptThread extends Thread
-    {
-        //local server socket
-        private final BluetoothServerSocket my_server_socket;
-
-        public AcceptThread()
-        {
-            BluetoothServerSocket tmp = null;
-
-            //create new listening server socket
-            try {
-                tmp = bt_adapter.listenUsingInsecureRfcommWithServiceRecord(app_name, app_uuid);
-
-                Log.d(TAG, "AcceptThread: Setting up server using: " + app_uuid);
-            }
-            catch (IOException e)
-            {}
-            my_server_socket = tmp;
-        }
-
-        public void run()
-        {
-            Log.d(TAG, "run: AcceptThread running");
-            BluetoothSocket socket = null;
-
-            try {
-                //This is a blocking call and will only return on a successful connection or exception
-                Log.d(TAG, "run: RFCOM server socket start...");
-                socket = my_server_socket.accept();
-                Log.d(TAG, "run: RFCOM server socket accepted connection");
-            }
-            catch (IOException e)
-            {
-                Log.e(TAG, "AcceptThread: IOException: " + e.getMessage());
-            }
-            if (socket != null)
-            {
-                connected(socket, my_device);
-            }
-            Log.i(TAG, "END AcceptThread");
-        }
-        public void cancel()
-        {
-            Log.d(TAG, "cancel: Cancelling AcceptThread");
-            try{
-                my_server_socket.close();
-            }
-            catch (IOException e)
-            {
-                Log.e(TAG, "cancel: Close of AcceptThread ServerSocket failed " + e.getMessage());
-            }
-        }
-    }
-
-    //Thread runs while attempting to make outgoing connection with a device.
-    private class ConnectThread extends Thread
-    {
-        private BluetoothSocket my_socket;
-
-        public ConnectThread(BluetoothDevice device, UUID uuid)
-        {
-            Log.d(TAG, "ConnectThread: started");
-            my_device = device;
-            device_UUID = uuid;
-        }
-        public void run()
-        {
-            BluetoothSocket tmp = null;
-
-            //Get a socket for a connection with the given device
-            try
-            {
-                tmp = my_device.createRfcommSocketToServiceRecord(device_UUID);
-            }
-            catch (IOException e)
-            {
-                Log.e(TAG, "ConnectThread: Could not create socket " + e.getMessage());
-            }
-            my_socket = tmp;
-
-            //Always cancel discovery because it will slow down a connection
-            bt_adapter.cancelDiscovery();
-
-            //Make a connection to the socket
-            try
-            {
-                my_socket.connect();
-            }
-            catch (IOException e)
-            {
-                //close the socket
-                try{
-                    my_socket.close();
-                    Log.d(TAG, "run: Closed socket");
-                }
-                catch (IOException ee)
-                {
-                    Log.e(TAG, "ConnectThread: run: Unable to close connection in socket " + ee.getMessage());
-                }
-                Log.d(TAG, "run: ConnectThread: Could not connect to UUID: " + app_uuid);
-            }
-            connected(my_socket, my_device);
-        }
-        public void cancel()
-        {
-            Log.d(TAG, "cancel: Cancelling AcceptThread");
-            try{
-                my_socket.close();
-            }
-            catch (IOException e)
-            {
-                Log.e(TAG, "cancel: Close of AcceptThread ServerSocket failed " + e.getMessage());
-            }
-        }
     }
 
     //Start the service. Start AcceptThread to begin a session in listening mode. Called by onResume
@@ -187,6 +74,129 @@ public class BT_Connection {
         my_connect_thread.start();
     }
 
+    //thread that sits and waits for a connection
+    private class AcceptThread extends Thread
+    {
+        //local server socket
+        private final BluetoothServerSocket my_server_socket;
+
+        public AcceptThread()
+        {
+            BluetoothServerSocket tmp = null;
+
+            //create new listening server socket
+            try {
+                tmp = bt_adapter.listenUsingInsecureRfcommWithServiceRecord(app_name, app_uuid);
+
+                Log.d(TAG, "AcceptThread: Setting up server using: " + app_uuid);
+            }
+            catch (IOException e) {
+                Log.e(TAG, "Socket's listen() method failed", e);
+            }
+            my_server_socket = tmp;
+        }
+
+        public void run()
+        {
+            Log.d(TAG, "run: AcceptThread running");
+            BluetoothSocket socket = null;
+
+            while(true) {
+                try {
+                    //This is a blocking call and will only return on a successful connection or exception
+                    Log.d(TAG, "run: RFCOM server socket start...");
+                    socket = my_server_socket.accept();
+                    Log.d(TAG, "run: RFCOM server socket accepted connection");
+                } catch (IOException e) {
+                    Log.e(TAG, "AcceptThread: IOException: " + e.getMessage());
+                    break;
+                }
+                if (socket != null) {
+                    //A connection was accepted. Perform work associated with the connection in a separate thread
+                    connected(socket, my_device);
+                    try {
+                        my_server_socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+            }
+            Log.i(TAG, "END AcceptThread");
+        }
+        public void cancel()
+        {
+            Log.d(TAG, "cancel: Cancelling AcceptThread");
+            try{
+                my_server_socket.close();
+            }
+            catch (IOException e) {
+                Log.e(TAG, "cancel: Close of AcceptThread ServerSocket failed " + e.getMessage());
+            }
+        }
+    }
+
+
+    //Thread runs while attempting to make outgoing connection with a device.
+    private class ConnectThread extends Thread
+    {
+        private BluetoothSocket my_socket;
+
+        public ConnectThread(BluetoothDevice device, UUID uuid)
+        {
+            Log.d(TAG, "ConnectThread: started");
+            my_device = device;
+            device_UUID = uuid;
+            BluetoothSocket tmp = null;
+
+            try{
+                // Get a BluetoothSocket to connect with the given BluetoothDevice.
+                // MY_UUID is the app's UUID string, also used in the server code.
+                tmp = device.createRfcommSocketToServiceRecord(device_UUID);
+            } catch (IOException e) {
+                Log.e(TAG, "Socket's create() method failed", e);
+            }
+            my_socket = tmp;
+        }
+        public void run()
+        {
+            //Always cancel discovery because it will slow down a connection
+            bt_adapter.cancelDiscovery();
+            //Get a socket for a connection with the given device
+            try
+            {
+                my_socket.connect();
+            }
+            catch (IOException connect_e) {
+                try{
+                    my_progress_dialog.dismiss();
+                    my_socket.close();
+                } catch (IOException close_e){
+                    Log.e(TAG, "Could not close the client socket", close_e);
+                    my_progress_dialog.dismiss();
+                }
+                Log.e(TAG, "ConnectThread: Could not create socket " + connect_e.getMessage());
+                my_progress_dialog.dismiss();
+                return;
+            }
+            connected(my_socket, my_device);
+        }
+
+        public void cancel()
+        {
+            Log.d(TAG, "cancel: Cancelling AcceptThread");
+            try{
+                my_progress_dialog.dismiss();
+                my_socket.close();
+            }
+            catch (IOException e) {
+                Log.e(TAG, "cancel: Close of AcceptThread ServerSocket failed " + e.getMessage());
+                my_progress_dialog.dismiss();
+            }
+        }
+    }
+
+
     private class ConnectedThread extends Thread
     {
         private final BluetoothSocket my_socket;
@@ -203,8 +213,7 @@ public class BT_Connection {
             //dismiss the processdialog when connection is established
             try {
                 my_progress_dialog.dismiss();
-            }catch (NullPointerException e)
-            {
+            }catch (NullPointerException e) {
                 e.printStackTrace();
             }
 
@@ -213,8 +222,7 @@ public class BT_Connection {
                 tmp_in = my_socket.getInputStream();
                 tmp_out = my_socket.getOutputStream();
             }
-            catch (IOException e)
-            {
+            catch (IOException e) {
                 e.printStackTrace();
             }
             my_in_stream = tmp_in;
@@ -240,7 +248,6 @@ public class BT_Connection {
                     break;
                 }
             }
-
         }
 
         //Call this from main activity to send data to the remote device
@@ -251,6 +258,11 @@ public class BT_Connection {
             try
             {
                 my_out_stream.write(bytes);
+
+                /*// Share the sent message with the UI activity.
+                Message writtenMsg = mHandler.obtainMessage(
+                        MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
+                writtenMsg.sendToTarget();*/
             }
             catch (IOException e)
             {
@@ -264,7 +276,9 @@ public class BT_Connection {
             try{
                 my_socket.close();
             }
-            catch (IOException e) {}
+            catch (IOException e) {
+                Log.e(TAG, "Could not close the connect socket", e);
+            }
         }
     }
 
