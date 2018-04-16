@@ -185,8 +185,8 @@ public class Destination_Info extends AppCompatActivity implements LocationListe
         {
             return;
         }
-        Location location = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        locationManager.requestLocationUpdates(GPS_PROVIDER,1000,0,this);
+        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        locationManager.requestLocationUpdates(GPS_PROVIDER,500,0,this);
         onLocationChanged(location);
     }
 }

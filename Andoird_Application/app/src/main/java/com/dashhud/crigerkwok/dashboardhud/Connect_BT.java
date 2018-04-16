@@ -58,7 +58,6 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
     BT_Connection bt_connection;
 
-
     SharedPreferences pref;
 
     @Override
@@ -197,7 +196,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     //bt_connection = new BT_Connection(Connect_BT.this);
                     //connect_service(BT_device, app_uuid);
 
-                    Intent a = new Intent(this, Controller.class);
+                    Intent a = new Intent(this, Control_and_location.class);
                     startActivity(a);
                     break;
                 }
@@ -262,9 +261,9 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             {
                 if(device_name.equals(device.getName()))
                 {
-                    /*Intent a = new Intent(this, Controller.class);
+                    Intent a = new Intent(this, Control_and_location.class);
                     startActivity(a);
-                    break;*/
+                    break;
                 }
             }
             //String text = "No connection found";
@@ -374,7 +373,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     BT_device = device;
                     bt_connection.startClient(BT_device, app_uuid);
 
-                    Intent a = new Intent(Connect_BT.this, Controller.class);
+                    Intent a = new Intent(Connect_BT.this, Control_and_location.class);
                     startActivity(a);
                 }
                 //case 2: creating a bond
