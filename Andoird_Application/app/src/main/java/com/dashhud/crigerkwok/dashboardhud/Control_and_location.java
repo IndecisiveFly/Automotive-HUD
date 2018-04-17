@@ -16,7 +16,6 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -26,21 +25,20 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import static android.location.LocationManager.GPS_PROVIDER;
 
 public class Control_and_location extends AppCompatActivity implements LocationListener {
 
     private static final String TAG = "Control and Location";
+
+    Connect_BT connect_bt;
 
     TextView device_status;
     TextView dest_status;
@@ -60,10 +58,9 @@ public class Control_and_location extends AppCompatActivity implements LocationL
     float mph_calc;
     Location prev_location;
 
-    Button navigation;
     Button set_station;
 
-    BT_Connection bt_connection;
+    BT_Service bt_service;
     Button connect;
     TextView other_station;
     //private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
@@ -98,7 +95,6 @@ public class Control_and_location extends AppCompatActivity implements LocationL
         gc = new Geocoder(this, Locale.getDefault());
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        navigation = findViewById(R.id.setup_nav_btn);
         set_station = findViewById(R.id.set_station_btn);
 
         //start send/receive data section
@@ -124,10 +120,8 @@ public class Control_and_location extends AppCompatActivity implements LocationL
         int b = (int) (a/0.2);
         fm_select.setProgress(b);
 
-        //get selected device and start bluetooth connection service when this activity launches.
-        Gson gson = new Gson();
-        String json = pref.getString("device", "");
-        bt_device = gson.fromJson(json, BluetoothDevice.class);
+        //Intent i = getIntent();
+        //bt_service = (BT_Service)i.getSerializableExtra("connection");
 
         //keep statuses current
         check_perms();
@@ -138,7 +132,7 @@ public class Control_and_location extends AppCompatActivity implements LocationL
             @Override
             public void run() {
                 update();
-                handler.postDelayed(this,1000); // set time here to refresh textView
+                handler.postDelayed(this,500); // set time here to refresh textView
             }
         });
     }
@@ -221,7 +215,7 @@ public class Control_and_location extends AppCompatActivity implements LocationL
         editor.apply();
 
         //byte[] bytes = station.getBytes(Charset.defaultCharset());
-        //bt_connection.write(bytes);
+        //bt_service.write(bytes);
 
         String toastText = "Saved: " + station;
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
@@ -236,7 +230,7 @@ public class Control_and_location extends AppCompatActivity implements LocationL
         String name = bt_device.getName();
         String address = bt_device.getAddress();
         Toast.makeText(this, name + " @ " + address, Toast.LENGTH_LONG).show();
-        //bt_connection.startClient(bt_device, app_uuid);
+        //bt_service.startClient(bt_device, app_uuid);
     }
 
     public void to_destination(View v)
@@ -245,9 +239,9 @@ public class Control_and_location extends AppCompatActivity implements LocationL
         startActivity(a);
     }
 
-    public void transfer_connection(BT_Connection connection)
+    public void transfer_connection(BT_Service connection)
     {
-        bt_connection = connection;
+        bt_service = connection;
     }
 
     @Override
@@ -258,7 +252,7 @@ public class Control_and_location extends AppCompatActivity implements LocationL
             longitude = location.getLongitude();
             get_speed = location.getSpeed();
 
-            Log.d(TAG, "Coords: " + latitude + " lat " + longitude + " long at speed of: " + get_speed);
+            //Log.d(TAG, "Coords: " + latitude + " lat " + longitude + " long at speed of: " + get_speed);
         }
         catch (NullPointerException e)
         {
@@ -297,7 +291,7 @@ public class Control_and_location extends AppCompatActivity implements LocationL
             return;
         }
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        locationManager.requestLocationUpdates(GPS_PROVIDER,1000,0,this);
+        locationManager.requestLocationUpdates(GPS_PROVIDER,500,0,this);
         onLocationChanged(location);
     }
 }

@@ -72,7 +72,8 @@
                 android:textColor="@color/Blue"
                 android:text="No location found"
                 android:textSize="20sp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:gravity="center"/>
 
             <Space
                 android:layout_width="match_parent"

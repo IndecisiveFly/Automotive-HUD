@@ -8,7 +8,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,18 +25,35 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemClickListener {
+import static android.location.LocationManager.GPS_PROVIDER;
 
-    private static final String TAG = "Connect_BT";
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
+    private static final String TAG = "Main";
+
+    LinearLayout connect_layout;
+    LinearLayout control_layout;
+
+    SharedPreferences pref;
+
+    //Before connection established
     BluetoothAdapter BT_adapter;
 
     Button BT_toggle;
@@ -52,13 +78,44 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
     private BT_Service bt_service;
 
-    SharedPreferences pref;
+    //After connection established elements
+    TextView device_status;
+    TextView dest_status;
+    TextView fm_current;
+    TextView saved_fm;
+
+    TextView current_address;
+    TextView current_speed_calc;
+
+    Geocoder gc;
+    List<Address> addresses;
+    LocationManager locationManager;
+    Double latitude;
+    Double longitude;
+    int speed;
+    float get_speed;
+    float mph_calc;
+    Location prev_location;
+
+    Button set_station;
+    String station;
+
+    ImageButton fm_back;
+    ImageButton fm_forward;
+
+    SeekBar fm_select;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect__bt);
+        setContentView(R.layout.activity_main);
 
+        connect_layout = findViewById(R.id.connect_layout);
+        control_layout = findViewById(R.id.control_layout);
+
+        pref = getSharedPreferences("status", Context.MODE_PRIVATE);
+
+        //Elements of "before"
         BT_toggle = findViewById(R.id.bluetooth_toggle_btn);
         BT_discoverable = findViewById(R.id.discoverable_btn);
         BT_reconnect = findViewById(R.id.reconnect_btn);
@@ -80,11 +137,49 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
         registerReceiver(broadcast_receiver, filter);
 
-        new_devices_list.setOnItemClickListener(Connect_BT.this);
+        new_devices_list.setOnItemClickListener(MainActivity.this);
 
-        pref = getSharedPreferences("status", Context.MODE_PRIVATE);
+        //Elements of "after"
+        device_status = findViewById(R.id.device_connection);
+        dest_status = findViewById(R.id.dest_set_text);
+        fm_current = findViewById(R.id.FM_frequency_text);
+        saved_fm = findViewById(R.id.saved_station_str);
+
+        current_address = findViewById(R.id.location_address);
+        current_speed_calc = findViewById(R.id.speed_mph);
+
+        gc = new Geocoder(this, Locale.getDefault());
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        set_station = findViewById(R.id.set_station_btn);
+        fm_back = findViewById(R.id.FM_prev);
+        fm_forward = findViewById(R.id.FM_next);
+        fm_select = findViewById(R.id.FM_radio_select);
+
+        saved_fm.setText(pref.getString("saved_fm", ""));
+        fm_current.setText(pref.getString("last_fm", "88.1"));
+        station = pref.getString("saved_fm", "");
+
+        String last = pref.getString("last_fm", "88.1");
+        Double a = Double.parseDouble(last);
+        a = a - 88.1;
+        int b = (int) (a/0.2);
+        fm_select.setProgress(b);
+
+        bt_service = new BT_Service(MainActivity.this);
 
         check_bt();
+        check_perms();
+        update();
+
+        final Handler handler=new Handler();
+        handler.post(new Runnable(){
+            @Override
+            public void run() {
+                update();
+                handler.postDelayed(this,500); // set time here to refresh textView
+            }
+        });
     }
 
     @Override
@@ -93,14 +188,18 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         super.onDestroy();
         unregisterReceiver(broadcast_receiver);
         BT_adapter.cancelDiscovery();
+        locationManager.removeUpdates(locationListener);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         check_bt();
+        check_perms();
+        update();
     }
 
+    //Begin section of "before" area functions
     //onClick for Bluetooth ON/OFF button, changes Bluetooth state and sets appropriate views/strings
     public void bluetooth_on_off(View v) {
         if (BT_adapter == null) {
@@ -175,25 +274,21 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         if(last_used_device != null)
         {
             toastText = "Checking for known paired device: " + last_used_device;
-            Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
             Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
             for(BluetoothDevice paired_device : paired_devices)
             {
                 if(paired_device.getName().equals(last_used_device))
                 {
                     toastText = "Found device: " + paired_device.getName() + " @ " + paired_device.getAddress();
-                    Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
                     BT_device = paired_device;
 
                     device_found = true;
 
-                    bt_service = new BT_Service(Connect_BT.this);
                     connect_service(BT_device, app_uuid);
 
-                    /*Intent a = new Intent(this, Control_and_location.class);
-                    a.putExtra("connection", bt_service);
-                    startActivity(a);
-                    break;*/
+                    break;
                 }
                 else
                 {
@@ -249,37 +344,30 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         Log.d(TAG, "onItemClick: device_name = " + device_name);
         Log.d(TAG, "onItemClick: device_addr = " + device_addr);
 
-        /*Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
+        Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
         if (paired_devices.size() > 0)
         {
             for(BluetoothDevice device : paired_devices)
             {
                 if(device_name.equals(device.getName()))
                 {
-                    Intent a = new Intent(this, Control_and_location.class);
-                    startActivity(a);
+                    connect_service(device, app_uuid);
                     break;
                 }
             }
             //String text = "No connection found";
             //Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-        }*/
+        }
+        else {
+            //create the bond
+            Log.d(TAG, "Trying to pair with " + device_name);
+            BT_devices_list.get(i).createBond();
 
-        //create the bond
-        Log.d(TAG, "Trying to pair with " + device_name);
-        BT_devices_list.get(i).createBond();
+            BT_device = BT_devices_list.get(i);
 
-        BT_device = BT_devices_list.get(i);
-        //create a new connection to clicked device
-        bt_service = new BT_Service(Connect_BT.this);
-
-        connect_service(BT_device, app_uuid);
-        //connect gets called once connection is accepted by clicked device
-        //bt_service.startClient(BT_device, app_uuid);
-        //controller.transfer_connection(bt_service);
-        /*Intent a = new Intent(this, Control_and_location.class);
-        a.putExtra("connection", bt_service);
-        startActivity(a);*/
+            connect_service(BT_device, app_uuid);
+            //connect gets called once connection is accepted by clicked device
+        }
     }
 
     BroadcastReceiver broadcast_receiver = new BroadcastReceiver()
@@ -353,7 +441,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     new_devices_list.setAdapter(device_list_adapter);
 
                     toastText = "Discovered: " + device.getName();
-                    Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -368,10 +456,6 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
                     Log.d(TAG, "Pairing: BOND_BONDED");
                     BT_device = device;
                     bt_service.startClient(BT_device, app_uuid);
-
-                    /*Intent a = new Intent(Connect_BT.this, Control_and_location.class);
-                    a.putExtra("connection", bt_service);
-                    startActivity(a);*/
                 }
                 //case 2: creating a bond
                 if(device.getBondState() == BluetoothDevice.BOND_BONDING)
@@ -393,7 +477,7 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
             //Supposed to know if Bluetooth connection is made, doesn't do it
             if(action.equals(BluetoothDevice.ACTION_ACL_CONNECTED))
             {
-                Toast.makeText(Connect_BT.this, "Successfully connected to device", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Successfully connected to device", Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -435,11 +519,163 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
         byte[] bytes = send_et.getText().toString().getBytes(Charset.defaultCharset());
         bt_service.write(bytes);
     }
+    //End area of "before" functions
 
-    public void move_activity(View v)
+
+
+
+
+
+    //Transition area start
+    public void transition_view(View v)
     {
-        Intent a = new Intent(this, Control_and_location.class);
-        a.putExtra("connection", bt_service);
-        startActivity(a);
+        if(connect_layout.getVisibility() == View.VISIBLE)
+        {
+            connect_layout.setVisibility(View.GONE);
+        }
+        else
+        {
+            connect_layout.setVisibility(View.VISIBLE);
+        }
+        if(connect_layout.getVisibility() == View.VISIBLE)
+        {
+            control_layout.setVisibility(View.GONE);
+        }
+        else
+        {
+            control_layout.setVisibility(View.VISIBLE);
+        }
+    }
+    //Transition area end
+
+
+
+
+
+
+    //Start area of "after" functions
+    public void update()
+    {
+        //update phone's location
+        try {
+            addresses = gc.getFromLocation(latitude, longitude, 1);
+            String address_l = addresses.get(0).getAddressLine(0);
+            //Log.d(TAG, address_l);
+            current_address.setText(address_l);
+
+            String calc_mph = Integer.toString(speed) + "  MPH";
+            current_speed_calc.setText(calc_mph);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        //keep track of seekbar progress, ensure seekbar matches up with value in textview
+        fm_select.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar sb, int progress, boolean from_user) {
+
+                Double sb_current = progress * 0.2;
+                sb_current = sb_current + 88.1;
+                DecimalFormat df = new DecimalFormat("#.#");
+                df.setRoundingMode(RoundingMode.CEILING);
+                station = df.format(sb_current);
+                fm_current.setText(station);
+
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putString("last_fm", station);
+                editor.apply();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    public void next_station(View v)
+    {
+        fm_select.incrementProgressBy(1);
+    }
+
+    public void prev_station(View v)
+    {
+        fm_select.incrementProgressBy(-1);
+    }
+
+    public void save_station(View v)
+    {
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("saved_fm", station);
+        editor.apply();
+
+        saved_fm.setText(station);
+
+        //byte[] bytes = station.getBytes(Charset.defaultCharset());
+        //bt_service.write(bytes);
+
+        String toastText = "Saved: " + station;
+        Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
+
+        //finish();
+        //startActivity(getIntent());
+    }
+
+    LocationListener locationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+
+            try {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                get_speed = location.getSpeed();
+
+                //Log.d(TAG, "Coords: " + latitude + " lat " + longitude + " long at speed of: " + get_speed);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+            mph_calc = get_speed * (float) 2.236;
+            speed = Math.round(mph_calc);
+            prev_location = location;
+
+            update();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+    };
+
+    public void check_perms()
+    {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED)
+        {
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        locationManager.requestLocationUpdates(GPS_PROVIDER,500,0, locationListener);
+        locationListener.onLocationChanged(location);
     }
 }

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.math.RoundingMode;
-import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.UUID;
 
@@ -31,7 +29,7 @@ public class Controller extends AppCompatActivity {
     Button navigation;
     Button set_station;
 
-    BT_Connection bt_connection;
+    BT_Service bt_service;
     Button connect;
     TextView other_station;
     private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
@@ -169,7 +167,7 @@ public class Controller extends AppCompatActivity {
         editor.apply();
 
         //byte[] bytes = station.getBytes(Charset.defaultCharset());
-        //bt_connection.write(bytes);
+        //bt_service.write(bytes);
 
         String toastText = "Saved: " + station;
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
@@ -184,7 +182,7 @@ public class Controller extends AppCompatActivity {
         String name = bt_device.getName();
         String address = bt_device.getAddress();
         Toast.makeText(this, name + " @ " + address, Toast.LENGTH_LONG).show();
-        //bt_connection.startClient(bt_device, app_uuid);
+        //bt_service.startClient(bt_device, app_uuid);
     }
 
     public void to_destination(View v)
@@ -193,8 +191,8 @@ public class Controller extends AppCompatActivity {
         startActivity(a);
     }
 
-    public void transfer_connection(BT_Connection connection)
+    public void transfer_connection(BT_Service connection)
     {
-        bt_connection = connection;
+        bt_service = connection;
     }
 }
