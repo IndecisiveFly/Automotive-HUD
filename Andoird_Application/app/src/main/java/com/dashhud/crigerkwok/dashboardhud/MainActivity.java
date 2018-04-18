@@ -166,8 +166,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int b = (int) (a/0.2);
         fm_select.setProgress(b);
 
-        bt_service = new BT_Service(MainActivity.this);
-
         check_bt();
         check_perms();
         update();
@@ -286,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                     device_found = true;
 
+                    bt_service = new BT_Service(MainActivity.this);
                     connect_service(BT_device, app_uuid);
 
                     break;
@@ -351,6 +350,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             {
                 if(device_name.equals(device.getName()))
                 {
+                    bt_service = new BT_Service(MainActivity.this);
                     connect_service(device, app_uuid);
                     break;
                 }
@@ -365,6 +365,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             BT_device = BT_devices_list.get(i);
 
+            bt_service = new BT_Service(MainActivity.this);
             connect_service(BT_device, app_uuid);
             //connect gets called once connection is accepted by clicked device
         }
