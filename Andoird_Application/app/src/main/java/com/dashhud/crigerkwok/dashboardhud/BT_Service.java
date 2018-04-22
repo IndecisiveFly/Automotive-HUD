@@ -15,12 +15,13 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.UUID;
 
 
-public class BT_Connection {
+public class BT_Service implements Serializable{
     private static final String TAG = "Bluetooth Service";
     private static final String app_name = "Automotive HUD";
     private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
@@ -37,7 +38,7 @@ public class BT_Connection {
 
     Handler handler;
 
-    public BT_Connection(Context context)
+    public BT_Service(Context context)
     {
         my_context = context;
         bt_adapter = BluetoothAdapter.getDefaultAdapter();
@@ -60,6 +61,16 @@ public class BT_Connection {
             my_accept_thread = new AcceptThread();
             my_accept_thread.start();
         }
+    }
+
+    public void acceptClient()
+    {
+        Log.d(TAG, "acceptClient: Started");
+        //initiate dialog
+        my_progress_dialog = ProgressDialog.show(my_context, "Accepting Bluetooth", "Wait for device...",true);
+
+        my_accept_thread = new AcceptThread();
+        my_accept_thread.start();
     }
 
     //AcceptThread starts and sits waiting for a connection.
@@ -299,7 +310,7 @@ public class BT_Connection {
     }
 }
 
-/*public class BT_Connection {
+/*public class BT_Service {
 
     private OutputStream outputStream;
     private InputStream inStream;

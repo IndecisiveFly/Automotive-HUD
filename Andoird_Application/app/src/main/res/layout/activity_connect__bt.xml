@@ -23,7 +23,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="30dp">
 
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/establish_connection_btn"
                 android:layout_gravity="center"
-                android:onClick="start_connection"
+                android:onClick="move_activity"
                 android:text="Connect"
                 android:visibility="visible"/>
 
