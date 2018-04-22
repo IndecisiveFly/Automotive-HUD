@@ -571,6 +571,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         {
             e.printStackTrace();
         }
+        catch (NullPointerException e)
+        {
+            e.printStackTrace();
+        }
 
         //keep track of seekbar progress, ensure seekbar matches up with value in textview
         fm_select.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
