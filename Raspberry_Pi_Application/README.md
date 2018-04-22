@@ -31,6 +31,7 @@ ExecStartPost=/usr/bin/sdptool add SP
 ```
 
 [Source of following configurations for advertise service](https://stackoverflow.com/questions/34599703/rfcomm-bluetooth-permission-denied-error-raspberry-pi)
+
 check if user pi is in bluetooth group
 ```
 $cat /etc/group | grep bluetooth
