@@ -16,6 +16,7 @@ def main():
 
     print ("waiting for connection on RFCOMM channel ", port)
 
+    advertise_service( server_sock, "Automotive HUD", service_id = uuid, service_classes = [uuid, SERIAL_PORT_CLASS], profiles = [SERIAL_PORT_PROFILE])
     #wait on socket and accept connection
     client_sock, client_info = server_sock.accept()
     print ("Accepted connection from ", client_info)

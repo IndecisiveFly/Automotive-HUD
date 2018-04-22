@@ -30,5 +30,53 @@ ExecStart=/usr/lib/bluetooth/bluetoothd -C
 ExecStartPost=/usr/bin/sdptool add SP
 ```
 
+[Source of following configurations for advertise service](https://stackoverflow.com/questions/34599703/rfcomm-bluetooth-permission-denied-error-raspberry-pi)
+check if user pi is in bluetooth group
+```
+$cat /etc/group | grep bluetooth
+bluetooth:x:111:pi
+```
+if not, add to group:
+`sudo usermod -G bluetooth -a pi`
+
+Then change group of /var/run/sdp file:
+`sudo chgrp bluetotoh /var/run/sdp`
+
+To make this persistent after reboot:
+Create `/etc/systemd/system/var-run-sdp.path` with:
+```
+[Unit]
+Descrption=Monitor /var/run/sdp
+
+[Install]
+WantedBy=bluetooth.service
+
+[Path]
+PathExists=/var/run/sdp
+Unit=var-run-sdp.service
+```
+
+And another file, `/etc/systemd/system/var-run/sdp.service` with:
+```
+[Unit]
+Description=Set permission of /var/run/sdp
+
+[Install]
+RequiredBy=var-run-sdp.path
+
+[Service]
+Type=simple
+ExecStart=/bin/chgrp bluetooth /var/run/sdp
+```
+
+Finally start it all up:
+```
+sudo systemctl daemon-reload
+sudo systemctl enable var-run-sdp.path
+sudo systemctl enable var-run-sdp.service
+sudo systemctl start var-run-sdp.path
+```
+
 ### Pybluez
 `pip install pybluez`
+
