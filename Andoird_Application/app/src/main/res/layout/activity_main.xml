@@ -35,7 +35,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="500dp"
                 android:id="@+id/connect_layout"
                 android:orientation="vertical"
                 android:padding="30dp">
@@ -49,10 +49,6 @@
                     android:text=""
                     android:textAllCaps="false" />
 
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp" />
-
                 <Button
                     android:id="@+id/discoverable_btn"
                     android:layout_width="match_parent"
@@ -60,6 +56,7 @@
                     android:backgroundTint="@android:color/holo_blue_light"
                     android:onClick="bluetooth_discoverable"
                     android:text="@string/bluetooth_discoverable"
+                    android:visibility="gone"
                     android:textAllCaps="false" />
 
                 <Space
@@ -92,23 +89,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="10dp" />
 
-                <EditText
-                    android:id="@+id/send_et"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/send_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:onClick="send_message"
-                    android:text="Send"
-                    android:visibility="gone" />
-
                 <ListView
                     android:id="@+id/devices_list_view"
                     android:layout_width="match_parent"
@@ -117,16 +97,7 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="10dp" />
-
-                <Button
-                    android:id="@+id/establish_connection_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:onClick="start_connection"
-                    android:text="Connect"
-                    android:visibility="visible" />
+                    android:layout_height="10dp"/>
 
             </LinearLayout>
 
@@ -140,34 +111,11 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/control_layout"
                 android:visibility="gone"
                 android:paddingBottom="30dp"
                 android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:paddingStart="30dp"
-                    android:paddingEnd="30dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/Black"
-                        android:text="@string/device_connection"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/device_connection"
-                        android:textColor="@color/Red"
-                        android:text="(Not) Connected"/>
-
-                </LinearLayout>
 
                 <Space
                     android:layout_width="wrap_content"

@@ -26,7 +26,7 @@ public class BT_Service implements Serializable{
     private static final String app_name = "Automotive HUD";
     private static final UUID app_uuid = UUID.fromString("00101101-0000-1000-8000-A0803F9B34FB");
 
-    private final BluetoothAdapter bt_adapter;
+    private BluetoothAdapter bt_adapter;
     Context my_context;
 
     private AcceptThread my_accept_thread;
@@ -42,7 +42,7 @@ public class BT_Service implements Serializable{
     {
         my_context = context;
         bt_adapter = BluetoothAdapter.getDefaultAdapter();
-        start();
+        //start();
     }
 
     //Start the service. Start AcceptThread to begin a session in listening mode. Called by onResume
@@ -58,8 +58,9 @@ public class BT_Service implements Serializable{
         }
         if(my_accept_thread == null)
         {
-            my_accept_thread = new AcceptThread();
-            my_accept_thread.start();
+
+            //my_accept_thread = new AcceptThread();
+            //my_accept_thread.start();
         }
     }
 
@@ -163,7 +164,8 @@ public class BT_Service implements Serializable{
             try{
                 // Get a BluetoothSocket to connect with the given BluetoothDevice.
                 // MY_UUID is the app's UUID string, also used in the server code.
-                tmp = device.createRfcommSocketToServiceRecord(device_UUID);
+                tmp = device.createRfcommSocketToServiceRecord(app_uuid);
+                Log.e(TAG, "Socket's create() method success");
             } catch (IOException e) {
                 Log.e(TAG, "Socket's create() method failed", e);
             }
@@ -182,6 +184,7 @@ public class BT_Service implements Serializable{
                 try{
                     my_progress_dialog.dismiss();
                     my_socket.close();
+                    Log.e(TAG, "ConnectThread: Socket.close() called ");
                 } catch (IOException close_e){
                     Log.e(TAG, "Could not close the client socket", close_e);
                     my_progress_dialog.dismiss();
@@ -305,7 +308,7 @@ public class BT_Service implements Serializable{
     //Write to ConnectedThread in an unsynchronized manner
     public void write(byte[] out)
     {
-        Log.d(TAG, "write: Write called");
+        //Log.d(TAG, "write: Write called");
         my_connected_thread.write(out);
     }
 }

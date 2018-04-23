@@ -134,6 +134,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 
         registerReceiver(broadcast_receiver, filter);
 
@@ -175,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void run() {
                 update();
-                handler.postDelayed(this,500); // set time here to refresh textView
+                handler.postDelayed(this,1000); // set time here to refresh textView
             }
         });
     }
@@ -291,24 +293,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 else
                 {
+                    toastText = "Previous device not found";
+                    Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
                     device_found = false;
                 }
             }
-            if(!device_found)
+            /*if(!device_found)
             {
                 toastText = "Previous device not found";
                 Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
                 BT_reconnect.setEnabled(false);
-            }
+            }*/
+        }
+        else
+        {
+            toastText = "No previous device paried with this application";
+            Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
         }
     }
 
     //onClick for showing a list of devices
     public void find_devices(View v)
     {
-        //String last_used_device = pref.getString("last_BT_device_address", null);
-
         BT_devices_list = new ArrayList<>();
+        device_list_adapter = new Device_List_Adapter(this, R.layout.activity_device__list__adapter, BT_devices_list);
+        new_devices_list.setAdapter(device_list_adapter);
 
         Log.d(TAG, "find_devices: Looking for unpaired devices.");
         if (BT_adapter.isDiscovering()) {
@@ -327,6 +336,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             BT_adapter.startDiscovery();
         }
     }
+
 
     //What happens when a discovered device is clicked on
     @Override
@@ -358,17 +368,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //String text = "No connection found";
             //Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         }
-        else {
+        //else {
             //create the bond
             Log.d(TAG, "Trying to pair with " + device_name);
             BT_devices_list.get(i).createBond();
 
             BT_device = BT_devices_list.get(i);
 
-            bt_service = new BT_Service(MainActivity.this);
-            connect_service(BT_device, app_uuid);
+            //bt_service = new BT_Service(MainActivity.this);
+            //connect_service(BT_device, app_uuid);
             //connect gets called once connection is accepted by clicked device
-        }
+        //}
     }
 
     BroadcastReceiver broadcast_receiver = new BroadcastReceiver()
@@ -456,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 {
                     Log.d(TAG, "Pairing: BOND_BONDED");
                     BT_device = device;
-                    bt_service.startClient(BT_device, app_uuid);
+                    //bt_service.startClient(BT_device, app_uuid);
                 }
                 //case 2: creating a bond
                 if(device.getBondState() == BluetoothDevice.BOND_BONDING)
@@ -479,6 +489,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if(action.equals(BluetoothDevice.ACTION_ACL_CONNECTED))
             {
                 Toast.makeText(MainActivity.this, "Successfully connected to device", Toast.LENGTH_SHORT).show();
+                transition_control();
+            }
+
+            if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED))
+            {
+                Toast.makeText(MainActivity.this, "Device connection dropped", Toast.LENGTH_SHORT).show();
+                transition_bt();
             }
         }
     };
@@ -503,16 +520,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     {
         Log.d(TAG, "connection_service: Initializing RFCOM Bluetooth Connection.");
 
-        String name = device.getName();
-        String address = device.getAddress();
-        Toast.makeText(this, name + " @ " + address, Toast.LENGTH_LONG).show();
-
         bt_service.startClient(device, uuid);
-    }
-
-    public void start_connection(View v)
-    {
-        connect_service(BT_device, app_uuid);
     }
 
     public void send_message(View v)
@@ -547,6 +555,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             control_layout.setVisibility(View.VISIBLE);
         }
     }
+
+    //change view to controls
+    public void transition_control()
+    {
+        connect_layout.setVisibility(View.GONE);
+        control_layout.setVisibility(View.VISIBLE);
+    }
+
+    //change view to bluetooth buttons
+    public void transition_bt()
+    {
+        control_layout.setVisibility(View.GONE);
+        connect_layout.setVisibility(View.VISIBLE);
+    }
     //Transition area end
 
 
@@ -564,8 +586,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //Log.d(TAG, address_l);
             current_address.setText(address_l);
 
-            String calc_mph = Integer.toString(speed) + "  MPH";
+            String calc_mph = Integer.toString(speed);
             current_speed_calc.setText(calc_mph);
+
+            try{
+                byte[] bytes = calc_mph.getBytes(Charset.defaultCharset());
+                bt_service.write(bytes);
+            }
+            catch (NullPointerException d)
+            {
+
+            }
         }
         catch (IOException e)
         {
@@ -623,8 +654,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         saved_fm.setText(station);
 
-        //byte[] bytes = station.getBytes(Charset.defaultCharset());
-        //bt_service.write(bytes);
+        try{
+            byte[] bytes = station.getBytes(Charset.defaultCharset());
+            bt_service.write(bytes);
+        }
+        catch (NullPointerException d)
+        {
+
+        }
 
         String toastText = "Saved: " + station;
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
@@ -680,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return;
         }
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        locationManager.requestLocationUpdates(GPS_PROVIDER,500,0, locationListener);
+        locationManager.requestLocationUpdates(GPS_PROVIDER,1000,0, locationListener);
         locationListener.onLocationChanged(location);
     }
 }
