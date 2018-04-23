@@ -21,6 +21,9 @@ sudo rpi-update
 ### For cpp bluetooth library
 `sudo apt-get install libbluetooth-dev`
 
+### Pybluez
+`pip install pybluez`
+
 ### Bluetooth configuration
 `sudo vim /etc/systemd/system/dbus-org.bluez.service`
 
@@ -38,9 +41,11 @@ $cat /etc/group | grep bluetooth
 bluetooth:x:111:pi
 ```
 if not, add to group:
+
 `sudo usermod -G bluetooth -a pi`
 
 Then change group of /var/run/sdp file:
+
 `sudo chgrp bluetotoh /var/run/sdp`
 
 To make this persistent after reboot:
@@ -78,6 +83,17 @@ sudo systemctl enable var-run-sdp.service
 sudo systemctl start var-run-sdp.path
 ```
 
-### Pybluez
-`pip install pybluez`
+If an error about file/directory not existing, follow [this link for instructions](https://www.raspberrypi.org/forums/viewtopic.php?t=132470)
+
+or:
+
+Edit `/lib/systemd/system/bluetooth.service`
+
+and change:
+`ExecStart=/usr/lib/bluetooth/bluetoothd`
+
+to
+
+`ExecStart=/usr/lib/bluetooth/bluetoothd --compat`
+
 
