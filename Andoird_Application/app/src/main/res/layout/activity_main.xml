@@ -113,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/control_layout"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:paddingBottom="30dp"
                 android:orientation="vertical">
 
@@ -298,11 +298,12 @@
                     android:layout_height="10dp" />
 
                 <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:id="@+id/color_change_sp"
-                    android:paddingStart="30dp"
-                    android:paddingEnd="30dp">
+                    style="@android:style/Widget.Holo.Light.Spinner"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:popupTheme="@android:color/white">
 
                 </Spinner>
 
@@ -323,11 +324,12 @@
                     android:layout_height="10dp" />
 
                 <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:id="@+id/timer_change_sp"
-                    android:paddingStart="30dp"
-                    android:paddingEnd="30dp">
+                    style="@android:style/Widget.Holo.Light.Spinner"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:popupTheme="@android:color/white">
 
                 </Spinner>
 

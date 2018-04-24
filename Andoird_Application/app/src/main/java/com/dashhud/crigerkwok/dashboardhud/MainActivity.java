@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -18,17 +19,21 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -86,11 +91,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     TextView current_address;
     TextView current_speed_calc;
+    Spinner color_spinner;
+    Spinner timer_spinner;
 
     String old_address = "";
     String old_speed = "";
     Integer address_counter = 0;
     Integer address_timer = 0;
+    String last_color;
     String speed_units = "";
     Button switch_speed;
 
@@ -158,6 +166,48 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         current_speed_calc = findViewById(R.id.speed_mph);
 
         switch_speed = findViewById(R.id.switch_units);
+        speed_units = pref.getString("speed_units", "mph");
+        color_spinner = findViewById(R.id.color_change_sp);
+        timer_spinner = findViewById(R.id.timer_change_sp);
+        address_timer = pref.getInt("timer_choice", 5);
+        last_color = pref.getString("color_choice", "White");
+        ArrayAdapter<CharSequence> color_adapter = ArrayAdapter.createFromResource(this,
+                R.array.colors_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> timer_adapter = ArrayAdapter.createFromResource(this,
+                R.array.timer_array, android.R.layout.simple_spinner_item);
+        color_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        timer_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        color_spinner.setAdapter(color_adapter);
+        timer_spinner.setAdapter(timer_adapter);
+
+        color_spinner.setSelection(pref.getInt("color_position", 0));
+        timer_spinner.setSelection(pref.getInt("timer_position", 0));
+
+        color_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String color_choice = parent.getItemAtPosition(position).toString();
+                change_color(color_choice);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        timer_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String timer_choice = parent.getItemAtPosition(position).toString();
+                change_timer(timer_choice);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         gc = new Geocoder(this, Locale.getDefault());
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -170,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         saved_fm.setText(pref.getString("saved_fm", ""));
         fm_current.setText(pref.getString("last_fm", "88.1"));
         station = pref.getString("saved_fm", "");
+        switch_speed.setText(pref.getString("speed_type", "Switch to km/h"));
 
         String last = pref.getString("last_fm", "88.1");
         Double a = Double.parseDouble(last);
@@ -596,7 +647,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             current_address.setText(address_l);
 
             String calc_mph = Integer.toString(speed);
-            current_speed_calc.setText(calc_mph);
+            String display_speed;
+            if(speed_units.equals("mph"))
+            {
+                display_speed = calc_mph + " MPH";
+            }
+            else
+            {
+                display_speed = calc_mph + " km/h";
+            }
+            current_speed_calc.setText(display_speed);
 
             if (!old_speed.equals(calc_mph))
             {
@@ -719,7 +779,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             mph_calc = get_speed * (float) 2.236;
 
-            if(speed_units.equals("kh/h"))
+            if(speed_units.equals("km/h"))
             {
                 mph_calc = (float) (mph_calc * 3.6);
             }
@@ -761,33 +821,92 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         locationListener.onLocationChanged(location);
     }
 
+
+
     //depending on user's choice of location timer update, location_timer will be set
     //make use of spinner selection
-    public void change_timer()
+    public void change_timer(String timer)
     {
+        int selection = color_spinner.getSelectedItemPosition();
+        Integer int_timer = Integer.parseInt(timer);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("timer_choice", int_timer);
+        editor.putInt("timer_position", selection);
+        editor.apply();
 
+        address_timer = int_timer;
     }
 
     //change color based on spinner choice, similar to above
-    public void change_color()
+    public void change_color(String color)
     {
+        int selection = color_spinner.getSelectedItemPosition();
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("color_choice", color);
+        editor.putInt("color_position", selection);
+        editor.apply();
 
+        switch (color) {
+            case "White":
+                current_speed_calc.setTextColor(Color.WHITE);
+                break;
+            case "Yellow":
+                current_speed_calc.setTextColor(Color.YELLOW);
+                break;
+            case "Blue":
+                current_speed_calc.setTextColor(Color.BLUE);
+                break;
+            case "Lime":
+                current_speed_calc.setTextColor(Color.GREEN);
+                break;
+            case "Cyan":
+                current_speed_calc.setTextColor(Color.CYAN);
+                break;
+            case "Red":
+                current_speed_calc.setTextColor(Color.RED);
+                break;
+        }
+
+        try{
+            color = "c " + color;
+            byte[] bytes = color.getBytes(Charset.defaultCharset());
+            bt_service.write(bytes);
+        }
+        catch (NullPointerException d)
+        {
+
+        }
     }
 
     //change units button, just swaps units between mph and km/h
     public void change_units(View v)
     {
+        String type;
         if(speed_units.equals("mph"))
         {
-            speed_units = "kh/h";
-            String mph = "Change to MPH";
-            switch_speed.setText(mph);
+            speed_units = "km/h";
+            type = "Change to MPH";
+            switch_speed.setText(type);
         }
         else
         {
             speed_units = "mph";
-            String kmh = "Change to Km/h";
-            switch_speed.setText(kmh);
+            type = "Change to km/h";
+            switch_speed.setText(type);
+        }
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("speed_type", type);
+        editor.putString("speed_units", speed_units);
+        editor.apply();
+
+        try{
+            String units= "u";
+            byte[] bytes = units.getBytes(Charset.defaultCharset());
+            bt_service.write(bytes);
+        }
+        catch (NullPointerException d)
+        {
+
         }
     }
 }
