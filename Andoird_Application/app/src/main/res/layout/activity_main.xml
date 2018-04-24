@@ -113,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/control_layout"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:paddingBottom="30dp"
                 android:orientation="vertical">
 
@@ -267,6 +267,73 @@
                         android:textColor="@color/Black" />
 
                 </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/switch_units"
+                    android:onClick="change_units"
+                    android:backgroundTint="@android:color/holo_blue_light"
+                    android:layout_gravity="center"
+                    android:textAllCaps="false" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="30dp"
+                    android:paddingEnd="30dp"
+                    android:text="@string/choose_color"
+                    android:textColor="@color/Black"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/color_change_sp"
+                    android:paddingStart="30dp"
+                    android:paddingEnd="30dp">
+
+                </Spinner>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="30dp"
+                    android:paddingEnd="30dp"
+                    android:text="@string/choose_timer"
+                    android:textColor="@color/Black"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/timer_change_sp"
+                    android:paddingStart="30dp"
+                    android:paddingEnd="30dp">
+
+                </Spinner>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
 
             </LinearLayout>
 

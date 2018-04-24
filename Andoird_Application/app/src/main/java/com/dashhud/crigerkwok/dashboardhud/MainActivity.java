@@ -87,6 +87,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     TextView current_address;
     TextView current_speed_calc;
 
+    String old_address = "";
+    String old_speed = "";
+    Integer address_counter = 0;
+    Integer address_timer = 0;
+    String speed_units = "";
+    Button switch_speed;
+
     Geocoder gc;
     List<Address> addresses;
     LocationManager locationManager;
@@ -149,6 +156,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         current_address = findViewById(R.id.location_address);
         current_speed_calc = findViewById(R.id.speed_mph);
+
+        switch_speed = findViewById(R.id.switch_units);
 
         gc = new Geocoder(this, Locale.getDefault());
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -589,14 +598,39 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             String calc_mph = Integer.toString(speed);
             current_speed_calc.setText(calc_mph);
 
-            try{
-                byte[] bytes = calc_mph.getBytes(Charset.defaultCharset());
-                bt_service.write(bytes);
-            }
-            catch (NullPointerException d)
+            if (!old_speed.equals(calc_mph))
             {
+                try {
+                    old_speed = calc_mph;
+                    String speed_package = "s " + calc_mph;
+                    byte[] bytes = speed_package.getBytes(Charset.defaultCharset());
+                    bt_service.write(bytes);
+                } catch (NullPointerException d) {
 
+                }
             }
+
+            if (address_counter.equals(address_timer))
+            {
+                try {
+                    String address_package = "l " + address_l;
+                    byte[] bytes = address_package.getBytes(Charset.defaultCharset());
+                    bt_service.write(bytes);
+                } catch (NullPointerException d) {
+
+                }
+            }
+
+            if(old_address.equals(address_l))
+            {
+                address_counter++;
+            }
+            else
+            {
+                address_counter = 0;
+            }
+
+            old_address = address_l;
         }
         catch (IOException e)
         {
@@ -654,14 +688,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         saved_fm.setText(station);
 
-        try{
+        /*try{
             byte[] bytes = station.getBytes(Charset.defaultCharset());
             bt_service.write(bytes);
         }
         catch (NullPointerException d)
         {
 
-        }
+        }*/
 
         String toastText = "Saved: " + station;
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
@@ -684,6 +718,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 e.printStackTrace();
             }
             mph_calc = get_speed * (float) 2.236;
+
+            if(speed_units.equals("kh/h"))
+            {
+                mph_calc = (float) (mph_calc * 3.6);
+            }
+
             speed = Math.round(mph_calc);
             prev_location = location;
 
@@ -719,5 +759,35 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         locationManager.requestLocationUpdates(GPS_PROVIDER,1000,0, locationListener);
         locationListener.onLocationChanged(location);
+    }
+
+    //depending on user's choice of location timer update, location_timer will be set
+    //make use of spinner selection
+    public void change_timer()
+    {
+
+    }
+
+    //change color based on spinner choice, similar to above
+    public void change_color()
+    {
+
+    }
+
+    //change units button, just swaps units between mph and km/h
+    public void change_units(View v)
+    {
+        if(speed_units.equals("mph"))
+        {
+            speed_units = "kh/h";
+            String mph = "Change to MPH";
+            switch_speed.setText(mph);
+        }
+        else
+        {
+            speed_units = "mph";
+            String kmh = "Change to Km/h";
+            switch_speed.setText(kmh);
+        }
     }
 }

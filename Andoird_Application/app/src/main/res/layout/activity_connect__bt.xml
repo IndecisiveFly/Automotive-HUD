@@ -79,23 +79,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp" />
 
-            <EditText
-                android:id="@+id/send_et"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:singleLine="true"
-                android:visibility="gone" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="Send"
-                android:id="@+id/send_btn"
-                android:onClick="send_message"
-                android:visibility="gone"/>
-
             <ListView
                 android:id="@+id/devices_list_view"
                 android:background="@color/White"
@@ -114,6 +97,23 @@
                 android:onClick="move_activity"
                 android:text="Connect"
                 android:visibility="visible"/>
+
+            <EditText
+                android:id="@+id/send_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:singleLine="true"
+                android:visibility="gone" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Send"
+                android:id="@+id/send_btn"
+                android:onClick="send_message"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

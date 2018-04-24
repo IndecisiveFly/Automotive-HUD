@@ -174,7 +174,8 @@ public class Connect_BT extends AppCompatActivity implements AdapterView.OnItemC
 
         if(last_used_device != null)
         {
-            toastText = "Checking for known paired device: " + last_used_device;
+            toastText = "Checking for know" +
+                    "n paired device: " + last_used_device;
             Toast.makeText(Connect_BT.this, toastText, Toast.LENGTH_SHORT).show();
             Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
             for(BluetoothDevice paired_device : paired_devices)

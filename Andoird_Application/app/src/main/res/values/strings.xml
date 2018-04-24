@@ -23,4 +23,6 @@
     <string name="current_dest">Current Destination:\ \ </string>
     <string name="location">Location:\ \ </string>
     <string name="location_hint">Safeway</string>
+    <string name="choose_color">Choose a color:</string>
+    <string name="choose_timer">Choose a timer:</string>
 </resources>
