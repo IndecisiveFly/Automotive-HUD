@@ -113,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/control_layout"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:paddingBottom="30dp"
                 android:orientation="vertical">
 
@@ -125,6 +125,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/Black"
+                    android:id="@+id/location_is"
                     android:text="@string/my_location"
                     android:layout_gravity="center"/>
 
@@ -198,6 +199,7 @@
                         android:layout_height="match_parent"
                         android:textColor="@color/Black"
                         android:background="@color/White"
+                        android:onClick="toggle_displays"
                         android:gravity="center" />
 
                     <Space
@@ -336,6 +338,14 @@
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="10dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="40dp"
+                    android:paddingEnd="40dp"
+                    android:text="@string/timer_expl"
+                    android:textColor="@color/Blue"/>
 
             </LinearLayout>
 

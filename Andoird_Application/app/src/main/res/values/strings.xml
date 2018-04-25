@@ -24,7 +24,8 @@
     <string name="location">Location:\ \ </string>
     <string name="location_hint">Safeway</string>
     <string name="choose_color">Choose a text color:</string>
-    <string name="choose_timer">Choose a timer (seconds):</string>
+    <string name="choose_timer">Choose a time (sec):</string>
+    <string name="timer_expl">Choice will tell location to show if idle for time selected.</string>
     <string-array name="colors_array">
         <item>White</item>
         <item>Yellow</item>

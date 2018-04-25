@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -89,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     TextView fm_current;
     TextView saved_fm;
 
+    TextView location_is;
     TextView current_address;
     TextView current_speed_calc;
     Spinner color_spinner;
@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     String old_speed = "";
     Integer address_counter = 0;
     Integer address_timer = 0;
+    String timer_choice;
     String last_color;
     String speed_units = "";
     Button switch_speed;
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         fm_current = findViewById(R.id.FM_frequency_text);
         saved_fm = findViewById(R.id.saved_station_str);
 
+        location_is = findViewById(R.id.location_is);
         current_address = findViewById(R.id.location_address);
         current_speed_calc = findViewById(R.id.speed_mph);
 
@@ -199,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         timer_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String timer_choice = parent.getItemAtPosition(position).toString();
+                timer_choice = parent.getItemAtPosition(position).toString();
                 change_timer(timer_choice);
             }
 
@@ -240,6 +242,42 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 handler.postDelayed(this,1000); // set time here to refresh textView
             }
         });
+
+        try {
+
+            String color_package = "c " + last_color;
+            Log.d(TAG, color_package);
+            byte[] bytes = color_package.getBytes(Charset.defaultCharset());
+            bt_service.write(bytes);
+        } catch (NullPointerException d) {
+
+        }
+        if(speed_units.equals("mph"))
+        {
+            try{
+                String units= "m";
+                Log.d(TAG, units);
+                byte[] bytes = units.getBytes(Charset.defaultCharset());
+                bt_service.write(bytes);
+            }
+            catch (NullPointerException d)
+            {
+
+            }
+        }
+        else
+        {
+            try{
+                String units= "k";
+                Log.d(TAG, units);
+                byte[] bytes = units.getBytes(Charset.defaultCharset());
+                bt_service.write(bytes);
+            }
+            catch (NullPointerException d)
+            {
+
+            }
+        }
     }
 
     @Override
@@ -257,6 +295,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         check_bt();
         check_perms();
         update();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        System.exit(0);
     }
 
     //Begin section of "before" area functions
@@ -643,7 +688,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         try {
             addresses = gc.getFromLocation(latitude, longitude, 1);
             String address_l = addresses.get(0).getAddressLine(0);
-            //Log.d(TAG, address_l);
             current_address.setText(address_l);
 
             String calc_mph = Integer.toString(speed);
@@ -663,6 +707,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 try {
                     old_speed = calc_mph;
                     String speed_package = "s " + calc_mph;
+                    Log.d(TAG, speed_package);
                     byte[] bytes = speed_package.getBytes(Charset.defaultCharset());
                     bt_service.write(bytes);
                 } catch (NullPointerException d) {
@@ -673,7 +718,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             if (address_counter.equals(address_timer))
             {
                 try {
+                    address_counter = 0;
                     String address_package = "l " + address_l;
+                    Log.d(TAG, address_package);
                     byte[] bytes = address_package.getBytes(Charset.defaultCharset());
                     bt_service.write(bytes);
                 } catch (NullPointerException d) {
@@ -681,16 +728,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
 
-            if(old_address.equals(address_l))
-            {
+            if (old_address.equals(address_l)) {
                 address_counter++;
-            }
-            else
-            {
+            } else {
                 address_counter = 0;
             }
 
             old_address = address_l;
+            //String timer_status = address_counter + " out of " + address_timer;
+            //Log.d(TAG, timer_status);
         }
         catch (IOException e)
         {
@@ -781,13 +827,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             if(speed_units.equals("km/h"))
             {
-                mph_calc = (float) (mph_calc * 3.6);
+                mph_calc = (float) (mph_calc * 1.60934);
             }
 
             speed = Math.round(mph_calc);
             prev_location = location;
 
-            update();
+            //update();
         }
 
         @Override
@@ -827,7 +873,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //make use of spinner selection
     public void change_timer(String timer)
     {
-        int selection = color_spinner.getSelectedItemPosition();
+        //spinner position integer
+        int selection = timer_spinner.getSelectedItemPosition();
+        //displayed integer value for selected spinner position
         Integer int_timer = Integer.parseInt(timer);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt("timer_choice", int_timer);
@@ -835,6 +883,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         editor.apply();
 
         address_timer = int_timer;
+        address_counter = 0;
     }
 
     //change color based on spinner choice, similar to above
@@ -869,6 +918,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         try{
             color = "c " + color;
+            Log.d(TAG, color);
             byte[] bytes = color.getBytes(Charset.defaultCharset());
             bt_service.write(bytes);
         }
@@ -887,26 +937,55 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             speed_units = "km/h";
             type = "Change to MPH";
             switch_speed.setText(type);
+
+            try{
+                String units= "k";
+                Log.d(TAG, units);
+                byte[] bytes = units.getBytes(Charset.defaultCharset());
+                bt_service.write(bytes);
+            }
+            catch (NullPointerException d)
+            {
+
+            }
         }
         else
         {
             speed_units = "mph";
             type = "Change to km/h";
             switch_speed.setText(type);
+
+            try{
+                String units= "m";
+                Log.d(TAG, units);
+                byte[] bytes = units.getBytes(Charset.defaultCharset());
+                bt_service.write(bytes);
+            }
+            catch (NullPointerException d)
+            {
+
+            }
         }
+
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("speed_type", type);
         editor.putString("speed_units", speed_units);
         editor.apply();
+    }
 
-        try{
-            String units= "u";
-            byte[] bytes = units.getBytes(Charset.defaultCharset());
-            bt_service.write(bytes);
-        }
-        catch (NullPointerException d)
+    public void toggle_displays(View v)
+    {
+        if(current_speed_calc.getVisibility() == View.VISIBLE)
         {
-
+            location_is.setVisibility(View.GONE);
+            current_address.setVisibility(View.GONE);
+            current_speed_calc.setVisibility(View.GONE);
+        }
+        else
+        {
+            location_is.setVisibility(View.VISIBLE);
+            current_address.setVisibility(View.VISIBLE);
+            current_speed_calc.setVisibility(View.VISIBLE);
         }
     }
 }
