@@ -26,16 +26,24 @@ def main():
     while 1:
         try:
             data = client_sock.recv(1024)
-            if not data: break #TODO detect client d/c
+            if not data: break 
             print ("recieved: ", data)
-            if data == "quit":
+            values = data[1:]
+            if data[0] == "q":
                 print ("exiting")
                 client_sock.close()
                 server_sock.close()
                 display.exit()
                 break
-            display.draw_speed(data) #TODO recieve "command" and then respond accordingly 
-            client_sock.send(data)
+            if data[0] == "c":
+                display.set_color(values)
+            if data[0] == "m":
+                display.set_mph()
+            if data[0] == "k":
+                display.set_kmh()
+            if data[0] == "s":
+                display.draw_speed(values)
+            client_sock.send(values)
 
         except IOError:
             print ("IO Error")

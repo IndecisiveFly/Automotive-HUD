@@ -25,18 +25,14 @@ class Visual:
         self.speed.setTextColor(self.color)
         self.speed.draw(self.window)
 
-    def set_font(self, name):
-        if name in ['helvetica','arial','courier','times roman']:
-            self.font = name
-
     def set_color(self, color):
         self.color = color
 
-    def toggle_units(self):
-        if self.units == " mph":
-            self.units = " kmph"
-        else:
-            self.units = " mph"
+    def set_mph(self):
+        self.units=" mph"
+
+    def set_kmh(self):
+        self.units" km/h"
 
     def exit(self):
         self.window.close()
