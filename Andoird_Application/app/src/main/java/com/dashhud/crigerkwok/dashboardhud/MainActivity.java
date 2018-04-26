@@ -243,41 +243,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        try {
-
-            String color_package = "c " + last_color;
-            Log.d(TAG, color_package);
-            byte[] bytes = color_package.getBytes(Charset.defaultCharset());
-            bt_service.write(bytes);
-        } catch (NullPointerException d) {
-
-        }
-        if(speed_units.equals("mph"))
-        {
-            try{
-                String units= "m";
-                Log.d(TAG, units);
-                byte[] bytes = units.getBytes(Charset.defaultCharset());
-                bt_service.write(bytes);
-            }
-            catch (NullPointerException d)
-            {
-
-            }
-        }
-        else
-        {
-            try{
-                String units= "k";
-                Log.d(TAG, units);
-                byte[] bytes = units.getBytes(Charset.defaultCharset());
-                bt_service.write(bytes);
-            }
-            catch (NullPointerException d)
-            {
-
-            }
-        }
     }
 
     @Override
@@ -595,6 +560,42 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             {
                 Toast.makeText(MainActivity.this, "Successfully connected to device", Toast.LENGTH_SHORT).show();
                 transition_control();
+
+                try {
+
+                    String color_package = "c " + last_color;
+                    Log.d(TAG, color_package);
+                    byte[] bytes = color_package.getBytes(Charset.defaultCharset());
+                    bt_service.write(bytes);
+                } catch (NullPointerException d) {
+
+                }
+                if(speed_units.equals("mph"))
+                {
+                    try{
+                        String units= "m";
+                        Log.d(TAG, units);
+                        byte[] bytes = units.getBytes(Charset.defaultCharset());
+                        bt_service.write(bytes);
+                    }
+                    catch (NullPointerException d)
+                    {
+
+                    }
+                }
+                else
+                {
+                    try{
+                        String units= "k";
+                        Log.d(TAG, units);
+                        byte[] bytes = units.getBytes(Charset.defaultCharset());
+                        bt_service.write(bytes);
+                    }
+                    catch (NullPointerException d)
+                    {
+
+                    }
+                }
             }
 
             if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED))
