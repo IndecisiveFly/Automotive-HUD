@@ -62,7 +62,7 @@ PathExists=/var/run/sdp
 Unit=var-run-sdp.service
 ```
 
-And another file, `/etc/systemd/system/var-run/sdp.service` with:
+And another file, `/etc/systemd/system/var-run-sdp.service` with:
 ```
 [Unit]
 Description=Set permission of /var/run/sdp
