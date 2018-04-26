@@ -21,6 +21,7 @@ def main():
     client_sock, client_info = server_sock.accept()
     print ("Accepted connection from ", client_info)
     display.draw_speed("0")
+    display.draw_units()
 
     #recieve data and process accordingly
     while 1:
@@ -28,7 +29,7 @@ def main():
             data = client_sock.recv(1024)
             if not data: break 
             print ("recieved: ", data)
-            values = data[1:]
+            values = data[2:]
             if data[0] == "q":
                 print ("exiting")
                 client_sock.close()
@@ -43,11 +44,16 @@ def main():
                 display.set_kmh()
             if data[0] == "s":
                 display.draw_speed(values)
+            if data[0] == "l":
+                display.draw_location(values)
             client_sock.send(values)
 
         except IOError:
             print ("IO Error")
-            pass
+            client_sock.close()
+            server_sock.close()
+            display.exit()
+            break
 
         except KeyboardInterrupt:
             print ("disconnected")
