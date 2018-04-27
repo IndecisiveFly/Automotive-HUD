@@ -59,6 +59,7 @@ def main():
             print ("disconnected")
             client_sock.close()
             server_sock.close()
+            display.exit()
             print ("all done")
             break
 

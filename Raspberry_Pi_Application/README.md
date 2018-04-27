@@ -24,6 +24,31 @@ sudo rpi-update
 ### Pybluez
 `pip install pybluez`
 
+### Psutil for autostart script
+`pip install psutil`
+
+#### setting up auto start
+Modify:
+`vim ~/.config/lxsession/LXDE-pi/autostart`
+
+and add:
+```
+@xset s 0 0
+@xset s noblank
+@xset s noexpose
+@xset dpms 0 0 0
+@lxterminal
+```
+to disable screen sleep and open a terminal upon restart.
+
+Then add 
+
+`lxterminal -e /usr/bin/python /home/pi/Automotive-HUD/Raspberry_Pi_Application/auto_start.py`
+
+at the end of `~/.bashrc`
+
+Note: Automotive HUD github directory is stored in home directory.  If it is not, the directory above will need to be modified here, **AND** the directory in `auto_start.py`.
+
 ### Bluetooth configuration
 `sudo vim /etc/systemd/system/dbus-org.bluez.service`
 
