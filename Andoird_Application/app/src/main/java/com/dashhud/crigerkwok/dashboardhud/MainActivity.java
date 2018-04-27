@@ -116,6 +116,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     Button set_station;
     String station;
 
+    Boolean sent;
+    Integer counter;
+
     ImageButton fm_back;
     ImageButton fm_forward;
 
@@ -166,6 +169,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         location_is = findViewById(R.id.location_is);
         current_address = findViewById(R.id.location_address);
         current_speed_calc = findViewById(R.id.speed_mph);
+
+        sent = false;
+        counter = 5;
 
         switch_speed = findViewById(R.id.switch_units);
         speed_units = pref.getString("speed_units", "mph");
@@ -242,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 handler.postDelayed(this,1000); // set time here to refresh textView
             }
         });
-
     }
 
     @Override
@@ -343,15 +348,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         if(last_used_device != null)
         {
-            toastText = "Checking for known paired device: " + last_used_device;
-            Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
             Set<BluetoothDevice> paired_devices = BT_adapter.getBondedDevices();
             for(BluetoothDevice paired_device : paired_devices)
             {
                 if(paired_device.getName().equals(last_used_device))
                 {
-                    toastText = "Found device: " + paired_device.getName() + " @ " + paired_device.getAddress();
-                    Toast.makeText(MainActivity.this, toastText, Toast.LENGTH_SHORT).show();
                     BT_device = paired_device;
 
                     device_found = true;
@@ -359,12 +360,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     bt_service = new BT_Service(MainActivity.this);
                     connect_service(BT_device, app_uuid);
 
+                    transition_control();
+
                     break;
                 }
                 else
                 {
-                    toastText = "Previous device not found";
-                    Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
                     device_found = false;
                 }
             }
@@ -377,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         else
         {
-            toastText = "No previous device paried with this application";
+            toastText = "No previous device paired with this application";
             Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
         }
     }
@@ -560,42 +561,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             {
                 Toast.makeText(MainActivity.this, "Successfully connected to device", Toast.LENGTH_SHORT).show();
                 transition_control();
-
-                try {
-
-                    String color_package = "c " + last_color;
-                    Log.d(TAG, color_package);
-                    byte[] bytes = color_package.getBytes(Charset.defaultCharset());
-                    bt_service.write(bytes);
-                } catch (NullPointerException d) {
-
-                }
-                if(speed_units.equals("mph"))
-                {
-                    try{
-                        String units= "m";
-                        Log.d(TAG, units);
-                        byte[] bytes = units.getBytes(Charset.defaultCharset());
-                        bt_service.write(bytes);
-                    }
-                    catch (NullPointerException d)
-                    {
-
-                    }
-                }
-                else
-                {
-                    try{
-                        String units= "k";
-                        Log.d(TAG, units);
-                        byte[] bytes = units.getBytes(Charset.defaultCharset());
-                        bt_service.write(bytes);
-                    }
-                    catch (NullPointerException d)
-                    {
-
-                    }
-                }
             }
 
             if(action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED))
@@ -667,6 +632,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     {
         connect_layout.setVisibility(View.GONE);
         control_layout.setVisibility(View.VISIBLE);
+
+        counter = 0;
     }
 
     //change view to bluetooth buttons
@@ -688,8 +655,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //update phone's location
         try {
             addresses = gc.getFromLocation(latitude, longitude, 1);
-            String address_l = addresses.get(0).getAddressLine(0);
-            current_address.setText(address_l);
+            //String address_l = addresses.get(0).getAddressLine(0);
+            String st_num = addresses.get(0).getSubThoroughfare();
+            String st_name = addresses.get(0).getThoroughfare();
+            String city = addresses.get(0).getLocality();
+            String address = st_num + " " + st_name + ", " + city;
+            current_address.setText(address);
 
             String calc_mph = Integer.toString(speed);
             String display_speed;
@@ -720,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             {
                 try {
                     address_counter = 0;
-                    String address_package = "l " + address_l;
+                    String address_package = "l " + address;
                     Log.d(TAG, address_package);
                     byte[] bytes = address_package.getBytes(Charset.defaultCharset());
                     bt_service.write(bytes);
@@ -729,13 +700,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
 
-            if (old_address.equals(address_l)) {
+            if (old_address.equals(address)) {
                 address_counter++;
             } else {
                 address_counter = 0;
             }
 
-            old_address = address_l;
+            old_address = address;
             //String timer_status = address_counter + " out of " + address_timer;
             //Log.d(TAG, timer_status);
         }
@@ -775,6 +746,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
+        if(!sent) {
+            wait_to_send();
+            counter++;
+        }
     }
 
     public void next_station(View v)
@@ -987,6 +962,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             location_is.setVisibility(View.VISIBLE);
             current_address.setVisibility(View.VISIBLE);
             current_speed_calc.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void wait_to_send()
+    {
+        Log.d(TAG, "wait_to_send called, counter at " + counter);
+        if(!sent) {
+            if (counter == 4) {
+                try {
+                    String color_package = "c " + last_color;
+                    Log.d(TAG, color_package);
+                    byte[] bytes = color_package.getBytes(Charset.defaultCharset());
+                    bt_service.write(bytes);
+                } catch (NullPointerException d) {
+
+                }
+                if (speed_units.equals("mph")) {
+                    try {
+                        String units = "m";
+                        Log.d(TAG, units);
+                        byte[] bytes = units.getBytes(Charset.defaultCharset());
+                        bt_service.write(bytes);
+                    } catch (NullPointerException d) {
+
+                    }
+                } else {
+                    try {
+                        String units = "k";
+                        Log.d(TAG, units);
+                        byte[] bytes = units.getBytes(Charset.defaultCharset());
+                        bt_service.write(bytes);
+                    } catch (NullPointerException d) {
+
+                    }
+                }
+                sent = true;
+            }
+
         }
     }
 }

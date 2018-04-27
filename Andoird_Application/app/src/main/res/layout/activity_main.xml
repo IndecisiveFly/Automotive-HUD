@@ -117,10 +117,6 @@
                 android:paddingBottom="30dp"
                 android:orientation="vertical">
 
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="10dp" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -160,7 +156,7 @@
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="30dp" />
+                    android:layout_height="10dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
