@@ -628,8 +628,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     //change view to controls
-    public void transition_control()
-    {
+    public void transition_control() {
         connect_layout.setVisibility(View.GONE);
         control_layout.setVisibility(View.VISIBLE);
 
