@@ -267,12 +267,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         update();
     }
 
-    @Override
+    /*@Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
         System.exit(0);
-    }
+    }*/
 
     //Begin section of "before" area functions
     //onClick for Bluetooth ON/OFF button, changes Bluetooth state and sets appropriate views/strings
@@ -686,28 +686,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
 
-            if (address_counter.equals(address_timer))
-            {
-                try {
-                    address_counter = 0;
-                    String address_package = "l " + address;
-                    Log.d(TAG, address_package);
-                    byte[] bytes = address_package.getBytes(Charset.defaultCharset());
-                    bt_service.write(bytes);
-                } catch (NullPointerException d) {
+            if(speed == 0) {
+                if (address_counter.equals(address_timer)) {
+                    try {
+                        address_counter = 0;
+                        String address_package = "l " + address;
+                        Log.d(TAG, address_package);
+                        byte[] bytes = address_package.getBytes(Charset.defaultCharset());
+                        bt_service.write(bytes);
+                    } catch (NullPointerException d) {
 
+                    }
                 }
-            }
-
-            if (old_address.equals(address)) {
                 address_counter++;
-            } else {
+            }
+            else
+            {
                 address_counter = 0;
             }
 
+            /*if (old_address.equals(address)) {
+                address_counter++;
+            } else {
+                address_counter = 0;
+            }*/
+
             old_address = address;
-            //String timer_status = address_counter + " out of " + address_timer;
-            //Log.d(TAG, timer_status);
+            String timer_status = address_counter + " out of " + address_timer;
+            Log.d(TAG, timer_status);
         }
         catch (IOException e)
         {
@@ -965,6 +971,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    //waits 4 seconds after reconnect/list item is clicked before sending initial data
+    //sends last saved color, radio station, and speed units
     public void wait_to_send()
     {
         Log.d(TAG, "wait_to_send called, counter at " + counter);
@@ -978,14 +986,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 } catch (NullPointerException d) {
 
                 }
+
                 try {
-                    String station_package = "r " + saved_fm;
+                    String station_package = "r " + pref.getString("saved_fm", "");
                     Log.d(TAG, station_package);
                     byte[] bytes = station_package.getBytes(Charset.defaultCharset());
                     bt_service.write(bytes);
                 } catch (NullPointerException d) {
 
                 }
+
                 if (speed_units.equals("mph")) {
                     try {
                         String units = "m";
