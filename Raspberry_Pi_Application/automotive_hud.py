@@ -46,6 +46,8 @@ def main():
                 display.draw_speed(values)
             if data[0] == "l":
                 display.draw_location(values)
+            if data[0] == "r":
+                display.draw_radio(values)
             client_sock.send(values)
 
         except IOError:
