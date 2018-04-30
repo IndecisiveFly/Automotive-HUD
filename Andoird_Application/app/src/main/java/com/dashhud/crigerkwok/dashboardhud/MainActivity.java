@@ -433,23 +433,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 {
                     bt_service = new BT_Service(MainActivity.this);
                     connect_service(device, app_uuid);
+
+                    SharedPreferences.Editor editor = pref.edit();
+                    String name = device.getName();
+                    editor.putString("last_BT_device_name", name);
+                    editor.apply();
+
                     break;
                 }
             }
-            //String text = "No connection found";
-            //Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         }
-        //else {
-            //create the bond
-            Log.d(TAG, "Trying to pair with " + device_name);
-            BT_devices_list.get(i).createBond();
 
-            BT_device = BT_devices_list.get(i);
+        Log.d(TAG, "Trying to pair with " + device_name);
+        BT_devices_list.get(i).createBond();
 
-            //bt_service = new BT_Service(MainActivity.this);
-            //connect_service(BT_device, app_uuid);
-            //connect gets called once connection is accepted by clicked device
-        //}
+        BT_device = BT_devices_list.get(i);
+
+        SharedPreferences.Editor editor = pref.edit();
+        String name = BT_device.getName();
+        editor.putString("last_BT_device_name", name);
+        editor.apply();
     }
 
     BroadcastReceiver broadcast_receiver = new BroadcastReceiver()
@@ -712,8 +715,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }*/
 
             old_address = address;
-            String timer_status = address_counter + " out of " + address_timer;
-            Log.d(TAG, timer_status);
+            //String timer_status = address_counter + " out of " + address_timer;
+            //Log.d(TAG, timer_status);
         }
         catch (IOException e)
         {
@@ -975,7 +978,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //sends last saved color, radio station, and speed units
     public void wait_to_send()
     {
-        Log.d(TAG, "wait_to_send called, counter at " + counter);
+        //Log.d(TAG, "wait_to_send called, counter at " + counter);
         if(!sent) {
             if (counter == 4) {
                 try {
