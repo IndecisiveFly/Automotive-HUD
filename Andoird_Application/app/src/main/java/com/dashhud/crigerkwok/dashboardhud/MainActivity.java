@@ -769,14 +769,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         saved_fm.setText(station);
 
-        /*try{
+        try{
+            station = "r " + station;
             byte[] bytes = station.getBytes(Charset.defaultCharset());
             bt_service.write(bytes);
         }
         catch (NullPointerException d)
         {
 
-        }*/
+        }
 
         String toastText = "Saved: " + station;
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
@@ -977,6 +978,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 } catch (NullPointerException d) {
 
                 }
+                try {
+                    String station_package = "r " + saved_fm;
+                    Log.d(TAG, station_package);
+                    byte[] bytes = station_package.getBytes(Charset.defaultCharset());
+                    bt_service.write(bytes);
+                } catch (NullPointerException d) {
+
+                }
                 if (speed_units.equals("mph")) {
                     try {
                         String units = "m";
@@ -996,6 +1005,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                     }
                 }
+
                 sent = true;
             }
 
