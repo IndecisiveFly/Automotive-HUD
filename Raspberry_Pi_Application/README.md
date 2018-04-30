@@ -27,19 +27,15 @@ sudo rpi-update
 ### Psutil for autostart script
 `pip install psutil`
 
-#### setting up auto start
+### Setting up auto start
 Modify:
 `vim ~/.config/lxsession/LXDE-pi/autostart`
 
 and add:
 ```
-@xset s 0 0
-@xset s noblank
-@xset s noexpose
-@xset dpms 0 0 0
 @lxterminal
 ```
-to disable screen sleep and open a terminal upon restart.
+to open a terminal when powered on.
 
 Then add 
 
@@ -48,6 +44,13 @@ Then add
 at the end of `~/.bashrc`
 
 Note: Automotive HUD github directory is stored in home directory.  If it is not, the directory above will need to be modified here, **AND** the directory in `auto_start.py`.
+
+Finally to disable screen sleep/blank:
+
+Modify `sudo vim /etc/lightdm/lightdm.conf`
+
+and add/modify:
+`xserver-command=X -s 0 dpms` after `[SeatDefault]` or `[Seat:*]`
 
 ### Bluetooth configuration
 `sudo vim /etc/systemd/system/dbus-org.bluez.service`
