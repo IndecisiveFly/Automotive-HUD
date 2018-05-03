@@ -989,7 +989,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 } catch (NullPointerException d) {
 
                 }
-
                 try {
                     String station_package = "r " + pref.getString("saved_fm", "");
                     Log.d(TAG, station_package);
@@ -1018,7 +1017,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                     }
                 }
-
                 sent = true;
             }
 
